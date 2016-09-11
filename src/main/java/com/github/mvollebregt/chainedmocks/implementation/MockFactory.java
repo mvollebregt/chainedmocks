@@ -36,6 +36,6 @@ public class MockFactory {
 
     @RuntimeType
     public Object intercept(@This Object target, @Origin Method method, @AllArguments Object[] arguments) {
-        return null;
+        return MockContext.getMockContext().intercept(target, method, arguments);
     }
 }
