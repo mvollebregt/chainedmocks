@@ -1,0 +1,29 @@
+apply plugin: 'java'
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'idea'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.+")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.+")
+    testRuntime("org.junit.vintage:junit-vintage-engine:4.+") // needed for IntelliJ to run the tests
+}
+
+// let Gradle run JUnit 5 tests
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0-M2'
+    }
+}
+
+// set the target path of IntelliJ to the same value as Gradle's target path
+idea {
+    module {
+        inheritOutputDirs = false
+        outputDir = file("$buildDir/classes/main/")
+    }
+}
