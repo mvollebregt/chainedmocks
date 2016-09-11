@@ -7,6 +7,8 @@ repositories {
 }
 
 dependencies {
+    compile("net.bytebuddy:byte-buddy:1.4.22")
+    compile("org.objenesis:objenesis:2.4")
     testCompile("org.junit.jupiter:junit-jupiter-api:5.+")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.+")
     testRuntime("org.junit.vintage:junit-vintage-engine:4.+") // needed for IntelliJ to run the tests
