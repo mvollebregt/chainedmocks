@@ -4,13 +4,13 @@ import java.lang.reflect.Method;
 
 public class MockRecorder {
 
-    private Method recordedCall;
+    private MethodCall recordedCall;
 
-    public Method getRecordedCall() {
+    public MethodCall getRecordedCall() {
         return recordedCall;
     }
 
-    public void record(Method methodCall) {
-        this.recordedCall = methodCall;
+    void record(Object target, Method methodCall) {
+        this.recordedCall = new MethodCall(target, methodCall);
     }
 }

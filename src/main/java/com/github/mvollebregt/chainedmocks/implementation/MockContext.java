@@ -11,7 +11,7 @@ public class MockContext {
 
     private final static MockContext mockContext = new MockContext();
 
-    private Map<Method, Action> behaviour = new HashMap<>();
+    private Map<MethodCall, Action> behaviour = new HashMap<>();
     private MockRecorder recorder;
 
     public static MockContext getMockContext() {
@@ -22,15 +22,15 @@ public class MockContext {
         this.recorder = recorder;
     }
 
-    public void setBehaviour(Method recordedCalls, Action behaviour) {
-        this.behaviour.put(recordedCalls, behaviour);
+    public void setBehaviour(MethodCall recordedCall, Action behaviour) {
+        this.behaviour.put(recordedCall, behaviour);
     }
 
-    public Object intercept(Object target, Method method, Object[] arguments) {
+    Object intercept(Object target, Method method, Object[] arguments) {
         if (recorder != null) {
-            recorder.record(method);
+            recorder.record(target, method);
         } else {
-            Optional.ofNullable(behaviour.get(method)).ifPresent(Action::execute);
+            Optional.ofNullable(behaviour.get(new MethodCall(target, method))).ifPresent(Action::execute);
         }
         return null;
     }

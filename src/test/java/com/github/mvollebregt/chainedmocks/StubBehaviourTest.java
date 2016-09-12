@@ -41,4 +41,18 @@ public class StubBehaviourTest {
         // then
         assertEquals("first action called and second action called", status);
     }
+
+    @Test
+    public void testVoidOnTwoMocks_BothCalled() {
+        // given
+        ClassToBeMocked secondMock = mock(ClassToBeMocked.class);
+        when(mock::action).then(() -> status = "action on first mock called");
+        when(secondMock::action).then(() -> status += " and action on second mock called");
+        // when
+        mock.action();
+        secondMock.action();
+        // then
+        assertEquals("action on first mock called and action on second mock called", status);
+    }
+
 }
