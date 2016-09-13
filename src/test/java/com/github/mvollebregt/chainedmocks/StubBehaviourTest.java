@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static com.github.mvollebregt.chainedmocks.ChainedMocks.mock;
 import static com.github.mvollebregt.chainedmocks.ChainedMocks.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.expectThrows;
 
 public class StubBehaviourTest {
 
@@ -29,6 +30,19 @@ public class StubBehaviourTest {
         // then
         assertEquals("mock not called", status);
     }
+
+    @Test
+    public void testVoid_MockCalledTwice() {
+        // given
+        status = "";
+        when(mock::action).then(() -> status += "mock called; ");
+        // when
+        mock.action();
+        mock.action();
+        // then
+        assertEquals("mock called; mock called; ", status);
+    }
+
 
     @Test
     public void testTwoVoids_BothCalled() {
@@ -82,4 +96,75 @@ public class StubBehaviourTest {
         assertEquals("mock not called", status);
     }
 
+    @Test
+    public void testVoidSequence_SequenceCalledWithIntermezzo() {
+        // given
+        when(() -> {
+            mock.action();
+            mock.otherAction();
+        }).then(() -> status = "sequence called");
+        // when
+        mock.action();
+        mock.yetAnotherAction();
+        mock.otherAction();
+        // then
+        assertEquals("sequence called", status);
+    }
+
+    @Test
+    public void testVoidSequence_SameSequenceMatchedTwice() {
+        // given
+        when(() -> {
+            mock.action();
+            mock.otherAction();
+        }).then(() -> status = "sequence called");
+        // when
+        mock.action();
+        mock.action();
+        mock.otherAction();
+        // then
+        assertEquals("sequence called", status);
+
+    }
+
+    @Test
+    public void testVoidSequence_TwoSequencesMatched() {
+        // given
+        status = "";
+        when(() -> {
+            mock.action();
+            mock.otherAction();
+        }).then(() -> status += "first action called");
+        when(() -> {
+            mock.action();
+            mock.yetAnotherAction();
+        }).then(() -> status += " and second action called");
+        // when
+        mock.action();
+        mock.otherAction();
+        mock.yetAnotherAction();
+        // then
+        assertEquals("first action called and second action called", status);
+    }
+
+    @Test
+    public void testVoidSequence_ConflictingMatches() {
+        // given
+        when(() -> {
+            mock.otherAction();
+            mock.action();
+        }).then(() -> {
+        });
+        when(() -> {
+            mock.yetAnotherAction();
+            mock.action();
+        }).then(() -> {
+        });
+        // when
+        mock.otherAction();
+        mock.yetAnotherAction();
+        // then
+        // TODO: what exception should we throw?
+        expectThrows(RuntimeException.class, () -> mock.action());
+    }
 }

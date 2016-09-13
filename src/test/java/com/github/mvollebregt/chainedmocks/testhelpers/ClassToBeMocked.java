@@ -11,4 +11,8 @@ public class ClassToBeMocked {
     public void otherAction() {
         fail("Underlying methods on mocked class should not be called.");
     }
+
+    public void yetAnotherAction() {
+        fail("Underlying methods on mocked class should not be called.");
+    }
 }
