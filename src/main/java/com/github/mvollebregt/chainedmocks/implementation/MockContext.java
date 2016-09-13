@@ -3,15 +3,14 @@ package com.github.mvollebregt.chainedmocks.implementation;
 import com.github.mvollebregt.chainedmocks.function.Action;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 
 public class MockContext {
 
     private final static MockContext mockContext = new MockContext();
 
-    private Map<MethodCall, Action> behaviour = new HashMap<>();
+    private CallSequenceMatcher matcher = new CallSequenceMatcher();
+
     private MockRecorder recorder;
 
     public static MockContext getMockContext() {
@@ -22,15 +21,19 @@ public class MockContext {
         this.recorder = recorder;
     }
 
-    public void setBehaviour(MethodCall recordedCall, Action behaviour) {
-        this.behaviour.put(recordedCall, behaviour);
+    public void setBehaviour(List<MethodCall> recordedCalls, Action behaviour) {
+        matcher.addBehaviour(recordedCalls, behaviour);
     }
 
     Object intercept(Object target, Method method, Object[] arguments) {
         if (recorder != null) {
             recorder.record(target, method);
         } else {
-            Optional.ofNullable(behaviour.get(new MethodCall(target, method))).ifPresent(Action::execute);
+            List<Action> matches = matcher.match(new MethodCall(target, method));
+            if (!matches.isEmpty()) {
+                matches.get(0).execute();
+                // TODO: handle multiple matches
+            }
         }
         return null;
     }

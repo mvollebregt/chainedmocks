@@ -5,11 +5,11 @@ import java.lang.reflect.Method;
 class MethodCall {
 
     private final Object target;
-    private final Method methodCall;
+    private final Method method;
 
-    MethodCall(Object target, Method methodCall) {
+    MethodCall(Object target, Method method) {
         this.target = target;
-        this.methodCall = methodCall;
+        this.method = method;
     }
 
     @Override
@@ -19,14 +19,14 @@ class MethodCall {
 
         MethodCall that = (MethodCall) o;
 
-        return target.equals(that.target) && methodCall.equals(that.methodCall);
+        return target.equals(that.target) && method.equals(that.method);
 
     }
 
     @Override
     public int hashCode() {
         int result = target.hashCode();
-        result = 31 * result + methodCall.hashCode();
+        result = 31 * result + method.hashCode();
         return result;
     }
 }

@@ -55,4 +55,31 @@ public class StubBehaviourTest {
         assertEquals("action on first mock called and action on second mock called", status);
     }
 
+    @Test
+    public void testVoidSequence_SequenceCalled() {
+        // given
+        when(() -> {
+            mock.action();
+            mock.otherAction();
+        }).then(() -> status = "sequence called");
+        // when
+        mock.action();
+        mock.otherAction();
+        // then
+        assertEquals("sequence called", status);
+    }
+
+    @Test
+    public void testVoidSequence_OnlyOneCalled() {
+        // given
+        when(() -> {
+            mock.action();
+            mock.otherAction();
+        }).then(() -> status = "sequence called");
+        // when
+        mock.otherAction();
+        // then
+        assertEquals("mock not called", status);
+    }
+
 }

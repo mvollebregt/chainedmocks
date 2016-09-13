@@ -18,6 +18,6 @@ public class When {
         context.setRecorder(recorder);
         expectedCalls.execute();
         context.setRecorder(null);
-        context.setBehaviour(recorder.getRecordedCall(), behaviour);
+        context.setBehaviour(recorder.getRecordedCalls(), behaviour);
     }
 }
