@@ -1,9 +1,11 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
+import com.github.mvollebregt.chainedmocks.AmbiguousExpectationsException;
 import com.github.mvollebregt.chainedmocks.function.Action;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 public class MockContext {
 
@@ -29,10 +31,11 @@ public class MockContext {
         if (recorder != null) {
             recorder.record(target, method);
         } else {
-            List<Action> matches = matcher.match(new MethodCall(target, method));
-            if (!matches.isEmpty()) {
-                matches.get(0).execute();
-                // TODO: handle multiple matches
+            Set<Action> matches = matcher.match(new MethodCall(target, method));
+            if (matches.size() == 1) {
+                matches.forEach(Action::execute);
+            } else if (matches.size() > 1) {
+                throw new AmbiguousExpectationsException();
             }
         }
         return null;

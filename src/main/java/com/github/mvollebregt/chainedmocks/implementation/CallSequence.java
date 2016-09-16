@@ -24,7 +24,19 @@ class CallSequence {
     }
 
     CallSequence match(MethodCall methodCall) {
-        return isFullyMatched() ? null : methodCalls.get(matchedItems).equals(methodCall) ? increased(this) : this;
+        if (isFullyMatched()) {
+            // fully matched sequences should be discarded
+            return null;
+        } else if (methodCalls.get(matchedItems).equals(methodCall)) {
+            // a matched method call should increase the matched items by one
+            return increased(this);
+        } else if (matchedItems != 0) {
+            // partially matched call sequences should be kept
+            return this;
+        } else {
+            // sequences with no single match should be discarded
+            return null;
+        }
     }
 
     private static CallSequence increased(CallSequence source) {

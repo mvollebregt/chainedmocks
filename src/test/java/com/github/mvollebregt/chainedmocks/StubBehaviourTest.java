@@ -164,7 +164,6 @@ public class StubBehaviourTest {
         mock.otherAction();
         mock.yetAnotherAction();
         // then
-        // TODO: what exception should we throw?
-        expectThrows(RuntimeException.class, () -> mock.action());
+        expectThrows(AmbiguousExpectationsException.class, () -> mock.action());
     }
 }
