@@ -2,10 +2,7 @@ package com.github.mvollebregt.chainedmocks.implementation;
 
 import com.github.mvollebregt.chainedmocks.function.Action;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,9 +19,12 @@ class CallSequenceMatcher {
     }
 
     Set<Action> match(MethodCall methodCall) {
-        partialMatches = Stream.concat(initialSequences.stream(), partialMatches.stream()).map(
-                callSequence -> callSequence.match(methodCall)).filter(Objects::nonNull).collect(Collectors.toList());
-        return partialMatches.stream().filter(CallSequence::isFullyMatched).
-                map(CallSequence::getBehaviour).collect(Collectors.toSet());
+        Map<Boolean, List<CallSequence>> matches =
+                Stream.concat(initialSequences.stream(), partialMatches.stream()).
+                        map(callSequence -> callSequence.match(methodCall)).
+                        filter(Objects::nonNull).
+                        collect(Collectors.partitioningBy(CallSequence::isFullyMatched));
+        partialMatches = matches.get(false);
+        return matches.get(true).stream().map(CallSequence::getBehaviour).collect(Collectors.toSet());
     }
 }
