@@ -12,9 +12,7 @@ class CallSequenceMatcher {
     private List<CallSequence> partialMatches = new ArrayList<>();
 
     void addBehaviour(List<MethodCall> recordedCalls, Action behaviour) {
-        partialMatches.clear();
-        // TODO: we should not clear the partial matches at this point, but somewhere else!
-        // TODO: when should we clear the initial sequences?
+        // TODO: should we clear the mocks somewhere?
         this.initialSequences.add(new CallSequence(recordedCalls, behaviour));
     }
 
