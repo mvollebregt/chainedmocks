@@ -1,23 +1,15 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
-import com.github.mvollebregt.chainedmocks.function.Action;
-
 import java.util.ArrayList;
 import java.util.List;
 
 class CallSequence {
 
     private final List<MethodCall> methodCalls;
-    private final Action behaviour;
     private final List<Integer> partialMatches = new ArrayList<>();
 
-    CallSequence(List<MethodCall> methodCalls, Action behaviour) {
+    CallSequence(List<MethodCall> methodCalls) {
         this.methodCalls = methodCalls;
-        this.behaviour = behaviour;
-    }
-
-    Action getBehaviour() {
-        return behaviour;
     }
 
     boolean isFullyMatched() {

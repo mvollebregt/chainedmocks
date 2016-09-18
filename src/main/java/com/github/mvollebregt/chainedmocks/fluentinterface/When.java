@@ -2,7 +2,6 @@ package com.github.mvollebregt.chainedmocks.fluentinterface;
 
 import com.github.mvollebregt.chainedmocks.function.Action;
 import com.github.mvollebregt.chainedmocks.implementation.MockContext;
-import com.github.mvollebregt.chainedmocks.implementation.MockRecorder;
 
 public class When {
 
@@ -13,11 +12,6 @@ public class When {
     }
 
     public void then(Action behaviour) {
-        MockContext context = MockContext.getMockContext();
-        MockRecorder recorder = new MockRecorder();
-        context.setRecorder(recorder);
-        expectedCalls.execute();
-        context.setRecorder(null);
-        context.setBehaviour(recorder.getRecordedCalls(), behaviour);
+        MockContext.getMockContext().stub(expectedCalls, behaviour);
     }
 }

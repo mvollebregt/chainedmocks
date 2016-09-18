@@ -5,34 +5,63 @@ import com.github.mvollebregt.chainedmocks.VerificationException;
 import com.github.mvollebregt.chainedmocks.function.Action;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MockContext {
 
     private final static MockContext mockContext = new MockContext();
 
-    private final CallSequenceMatcher matcher = new CallSequenceMatcher();
+    private final List<MethodCall> actualCalls = new ArrayList<>();
 
-    private final MockRecorder actualCallRecorder = new MockRecorder();
+    private final Map<CallSequence, Action> stubs = new HashMap<>();
 
-    private MockRecorder recorder;
+    private List<MethodCall> recordedCalls;
+
+    private boolean recording = false;
 
     public static MockContext getMockContext() {
         return mockContext;
     }
 
-    public void setRecorder(MockRecorder recorder) {
-        this.recorder = recorder != null ? recorder : actualCallRecorder;
+    public void stub(Action expectedCalls, Action behaviour) {
+        stubs.put(new CallSequence(record(expectedCalls)), behaviour);
     }
 
-    public void setBehaviour(List<MethodCall> recordedCalls, Action behaviour) {
-        matcher.addBehaviour(recordedCalls, behaviour);
+    public void verify(Action action) {
+        List<MethodCall> expectedCalls = record(action);
+        CallSequence callSequence = new CallSequence(expectedCalls);
+        boolean matched = actualCalls.stream().reduce(false, (acc, call) -> {
+            callSequence.match(call);
+            return acc || callSequence.isFullyMatched();
+        }, Boolean::logicalOr);
+        if (!matched) {
+            throw new VerificationException();
+        }
+    }
+
+    private List<MethodCall> record(Action action) {
+        recordedCalls = new ArrayList<>();
+        recording = true;
+        action.execute();
+        recording = false;
+        return recordedCalls;
+    }
+
+    private List<Action> match(MethodCall methodCall) {
+        stubs.keySet().forEach(callSequence -> callSequence.match(methodCall));
+        return stubs.entrySet().stream().filter(entry -> entry.getKey().isFullyMatched()).map(Map.Entry::getValue).
+                collect(Collectors.toList());
+
     }
 
     Object intercept(Object target, Method method, Object[] arguments) {
-        recorder.record(target, method);
-        if (recorder == actualCallRecorder) {
-            List<Action> matches = matcher.match(new MethodCall(target, method));
+        (recording ? recordedCalls : actualCalls).add(new MethodCall(target, method));
+        if (!recording) {
+            List<Action> matches = match(new MethodCall(target, method));
             if (matches.size() == 1) {
                 matches.forEach(Action::execute);
             } else if (matches.size() > 1) {
@@ -40,16 +69,5 @@ public class MockContext {
             }
         }
         return null;
-    }
-
-    public void verify(List<MethodCall> expectedCalls) {
-        CallSequence callSequence = new CallSequence(expectedCalls, null);
-        boolean matched = actualCallRecorder.getRecordedCalls().stream().reduce(false, (acc, call) -> {
-            callSequence.match(call);
-            return acc || callSequence.isFullyMatched();
-        }, Boolean::logicalOr);
-        if (!matched) {
-            throw new VerificationException();
-        }
     }
 }

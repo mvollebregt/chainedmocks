@@ -4,7 +4,6 @@ import com.github.mvollebregt.chainedmocks.fluentinterface.When;
 import com.github.mvollebregt.chainedmocks.function.Action;
 import com.github.mvollebregt.chainedmocks.implementation.MockContext;
 import com.github.mvollebregt.chainedmocks.implementation.MockFactory;
-import com.github.mvollebregt.chainedmocks.implementation.MockRecorder;
 import net.bytebuddy.ByteBuddy;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
@@ -24,12 +23,6 @@ public class ChainedMocks {
     }
 
     public static void verify(Action expectedCalls) {
-        MockContext context = MockContext.getMockContext();
-        MockRecorder recorder = new MockRecorder();
-        context.setRecorder(recorder);
-        expectedCalls.execute();
-        context.setRecorder(null);
-        context.verify(recorder.getRecordedCalls());
+        MockContext.getMockContext().verify(expectedCalls);
     }
-
 }
