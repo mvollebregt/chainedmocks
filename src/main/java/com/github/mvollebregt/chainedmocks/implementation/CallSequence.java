@@ -9,7 +9,7 @@ class CallSequence {
 
     private final List<MethodCall> methodCalls;
     private final Action behaviour;
-    private List<Integer> partialMatches = new ArrayList<>();
+    private final List<Integer> partialMatches = new ArrayList<>();
 
     CallSequence(List<MethodCall> methodCalls, Action behaviour) {
         this.methodCalls = methodCalls;

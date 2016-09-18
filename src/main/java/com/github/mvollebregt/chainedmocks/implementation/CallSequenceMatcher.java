@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 class CallSequenceMatcher {
 
-    private List<CallSequence> callSequences = new ArrayList<>();
+    private final List<CallSequence> callSequences = new ArrayList<>();
 
     void addBehaviour(List<MethodCall> recordedCalls, Action behaviour) {
         // TODO: should we clear the mocks somewhere?

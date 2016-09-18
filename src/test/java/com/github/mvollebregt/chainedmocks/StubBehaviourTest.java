@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.expectThrows;
 public class StubBehaviourTest {
 
     private String status = "mock not called";
-    private ClassToBeMocked mock = mock(ClassToBeMocked.class);
+    private final ClassToBeMocked mock = mock(ClassToBeMocked.class);
 
     @Test
     public void testVoid_MockCalled() {
@@ -164,7 +164,7 @@ public class StubBehaviourTest {
         mock.otherAction();
         mock.yetAnotherAction();
         // then
-        expectThrows(AmbiguousExpectationsException.class, () -> mock.action());
+        expectThrows(AmbiguousExpectationsException.class, mock::action);
     }
 
     @Test

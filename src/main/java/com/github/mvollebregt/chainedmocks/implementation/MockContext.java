@@ -10,7 +10,7 @@ public class MockContext {
 
     private final static MockContext mockContext = new MockContext();
 
-    private CallSequenceMatcher matcher = new CallSequenceMatcher();
+    private final CallSequenceMatcher matcher = new CallSequenceMatcher();
 
     private MockRecorder recorder;
 

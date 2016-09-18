@@ -6,7 +6,7 @@ import java.util.List;
 
 public class MockRecorder {
 
-    private List<MethodCall> recordedCalls = new ArrayList<>();
+    private final List<MethodCall> recordedCalls = new ArrayList<>();
 
     public List<MethodCall> getRecordedCalls() {
         return recordedCalls;

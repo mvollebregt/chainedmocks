@@ -9,9 +9,9 @@ import org.objenesis.ObjenesisStd;
 
 public class ChainedMocks {
 
-    private static ByteBuddy byteBuddy = new ByteBuddy();
-    private static Objenesis objenesis = new ObjenesisStd();
-    private static MockFactory mockFactory = new MockFactory(objenesis, byteBuddy);
+    private final static ByteBuddy byteBuddy = new ByteBuddy();
+    private final static Objenesis objenesis = new ObjenesisStd();
+    private final static MockFactory mockFactory = new MockFactory(objenesis, byteBuddy);
 
     public static <T> T mock(Class<T> classToBeMocked) {
         return mockFactory.createMock(classToBeMocked);
