@@ -166,4 +166,21 @@ public class StubBehaviourTest {
         // then
         expectThrows(AmbiguousExpectationsException.class, () -> mock.action());
     }
+
+    @Test
+    public void testVoidSequence_MatchedTwice() {
+        // given
+        status = "";
+        when(() -> {
+            mock.action();
+            mock.otherAction();
+        }).then(() -> status += "action called; ");
+        // when
+        mock.action();
+        mock.action();
+        mock.otherAction();
+        mock.otherAction();
+        // then
+        assertEquals("action called; action called; ", status);
+    }
 }
