@@ -25,6 +25,22 @@ public class VerifyTest {
     }
 
     @Test
+    public void testVerifyConsumer_Called() {
+        // when
+        mock.consume("expected value");
+        // then
+        verify(() -> mock.consume("expected value"));
+    }
+
+    @Test
+    public void testVerifyConsumer_NotCalled() {
+        // when
+        mock.consume("unexpected value");
+        //
+        expectThrows(VerificationException.class, () -> verify(() -> mock.consume("expected value")));
+    }
+
+    @Test
     public void testVerify_MockReturningObject() {
         // when
         mock.provide(String.class);
