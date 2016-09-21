@@ -24,4 +24,9 @@ public class ClassToBeMocked {
         fail("Underlying methods on mocked class should not be called.");
         return null;
     }
+
+    public int provideInt() {
+        fail("Underlying methods on mocked class should not be called.");
+        return 0;
+    }
 }

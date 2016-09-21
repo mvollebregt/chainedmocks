@@ -49,7 +49,15 @@ public class MockContext {
                 throw new AmbiguousExpectationsException();
             }
         }
-        return null;
+        return provideDefault(method.getReturnType());
+    }
+
+    private Object provideDefault(Class type) {
+        if (type.equals(Integer.TYPE)) {
+            return 0;
+        } else {
+            return null;
+        }
     }
 
     private List<Supplier> match(MethodCall methodCall) {
