@@ -12,6 +12,7 @@ public class When {
     }
 
     public void then(Action behaviour) {
-        MockContext.getMockContext().stub(expectedCalls, behaviour);
+        MockContext context = MockContext.getMockContext();
+        context.stub(context.record(expectedCalls), behaviour);
     }
 }

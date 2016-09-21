@@ -1,38 +1,24 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
-import java.util.ArrayList;
 import java.util.List;
 
-class CallSequence {
+public class CallSequence {
 
     private final List<MethodCall> methodCalls;
-    private final List<Integer> partialMatches = new ArrayList<>();
 
     CallSequence(List<MethodCall> methodCalls) {
         this.methodCalls = methodCalls;
     }
 
-    boolean isFullyMatched() {
-        return partialMatches.size() > 0 && partialMatches.get(0) == methodCalls.size();
+    List<MethodCall> getMethodCalls() {
+        return methodCalls;
     }
 
-    void match(MethodCall methodCall) {
-        // discard a full match, if there is one
-        if (isFullyMatched()) {
-            partialMatches.remove(0);
-        }
-        // make sure we detect a new partial match, if there is one
-        if (partialMatches.isEmpty() || partialMatches.get(partialMatches.size() - 1) != 0) {
-            partialMatches.add(0);
-        }
-        // find the first partial match that matches the new method call, and increase it
-        int index;
-        for (index = 0; index < partialMatches.size(); index++) {
-            int matchedItemCount = partialMatches.get(index);
-            if (methodCall.equals(methodCalls.get(matchedItemCount))) {
-                partialMatches.set(index, matchedItemCount + 1);
-                break;
-            }
-        }
+    public boolean matches(CallSequence actualCalls) {
+        CallSequenceMatcher matcher = new CallSequenceMatcher(this);
+        return actualCalls.getMethodCalls().stream().reduce(false, (acc, call) -> {
+            matcher.match(call);
+            return acc || matcher.isFullyMatched();
+        }, Boolean::logicalOr);
     }
 }

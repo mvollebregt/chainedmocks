@@ -2,8 +2,7 @@ package com.github.mvollebregt.chainedmocks;
 
 import com.github.mvollebregt.chainedmocks.fluentinterface.When;
 import com.github.mvollebregt.chainedmocks.function.Action;
-import com.github.mvollebregt.chainedmocks.implementation.MockContext;
-import com.github.mvollebregt.chainedmocks.implementation.MockFactory;
+import com.github.mvollebregt.chainedmocks.implementation.*;
 import net.bytebuddy.ByteBuddy;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
@@ -23,6 +22,9 @@ public class ChainedMocks {
     }
 
     public static void verify(Action expectedCalls) {
-        MockContext.getMockContext().verify(expectedCalls);
+        MockContext context = MockContext.getMockContext();
+        if (!context.record(expectedCalls).matches(context.getActualCalls())) {
+            throw new VerificationException();
+        }
     }
 }
