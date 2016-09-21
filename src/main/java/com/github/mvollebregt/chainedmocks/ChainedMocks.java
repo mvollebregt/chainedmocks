@@ -29,8 +29,7 @@ public class ChainedMocks {
     }
 
     public static void verify(Action expectedCalls) {
-        MockContext context = MockContext.getMockContext();
-        if (!context.record(expectedCalls).matches(context.getActualCalls())) {
+        if (!MockContext.getMockContext().getActualCalls().isMatchedBy(expectedCalls)) {
             throw new VerificationException();
         }
     }

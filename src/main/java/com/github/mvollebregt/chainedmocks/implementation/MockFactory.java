@@ -28,6 +28,7 @@ public class MockFactory {
                 .method(any()).intercept(to(MockMethodInterceptor.class))
                 .method(isHashCode()).intercept(to(HashCodeInterceptor.class))
                 .method(isEquals()).intercept(to(EqualsInterceptor.class))
+                .method(isToString()).intercept(to(ToStringInterceptor.class))
                 .make()
                 .load(ChainedMocks.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                 .getLoaded());
@@ -49,6 +50,12 @@ public class MockFactory {
     public static class EqualsInterceptor {
         public static boolean intercept(@This Object target, @Argument(0) Object other) {
             return target == other;
+        }
+    }
+
+    public static class ToStringInterceptor {
+        public static String intercept(@This Object target) {
+            return String.format("%s@%s", target.getClass().getSimpleName(), System.identityHashCode(target));
         }
     }
 }

@@ -17,66 +17,49 @@ public class MockContext {
     private final List<CallSequenceMatcher> matchers = new ArrayList<>();
     private List<MethodCall> recordedCalls;
     private boolean recording = false;
+    private ValueProvider recordingValueProvider;
+    private final ValueProvider testValueProvider = new IncrementingValueProvider(1);
 
     public static MockContext getMockContext() {
         return mockContext;
     }
 
-    public CallSequence getActualCalls() {
-        return new CallSequence(actualCalls);
+    public ActualCalls getActualCalls() {
+        return new ActualCalls(actualCalls);
     }
 
-    public CallSequence record(Action action) {
+    public void stub(Action action, Supplier behaviour) {
+        matchers.add(new CallSequenceMatcher(action, behaviour));
+    }
+
+    List<MethodCall> record(Action action, ValueProvider valueProvider) {
+        this.recordingValueProvider = valueProvider;
         recordedCalls = new ArrayList<>();
         recording = true;
         action.execute();
         recording = false;
-        return new CallSequence(recordedCalls);
-    }
-
-    public void stub(CallSequence expectedCalls, Supplier behaviour) {
-        matchers.add(new CallSequenceMatcher(expectedCalls, behaviour));
+        return recordedCalls;
     }
 
     Object intercept(Object target, Method method, Object[] arguments) {
         MethodCall methodCall = new MethodCall(target, method, arguments);
-        (recording ? recordedCalls : actualCalls).add(methodCall);
-        if (!recording) {
+        if (recording) {
+            recordedCalls.add(methodCall);
+            return recordingValueProvider.provide(method.getReturnType());
+        } else {
             List<Supplier> matches = match(methodCall);
-            if (matches.size() == 1) {
-                return matches.get(0).get();
-            } else if (matches.size() > 1) {
+            if (matches.size() > 1) {
                 throw new AmbiguousExpectationsException();
             }
+            Object returnValue = matches.size() == 1 ? matches.get(0).get() : testValueProvider.provide(method.getReturnType());
+            actualCalls.add(methodCall.withReturnValue(returnValue));
+            return returnValue;
         }
-        return provideDefault(method.getReturnType());
     }
 
     private List<Supplier> match(MethodCall methodCall) {
         matchers.forEach(callSequence -> callSequence.match(methodCall));
         return matchers.stream().filter(CallSequenceMatcher::isFullyMatched).map(CallSequenceMatcher::getBehaviour).
                 collect(Collectors.toList());
-    }
-
-    private Object provideDefault(Class type) {
-        if (type.equals(Byte.TYPE)) {
-            return (byte) 0;
-        } else if (type.equals(Short.TYPE)) {
-            return (short) 0;
-        }  else if (type.equals(Integer.TYPE)) {
-            return 0;
-        } else if (type.equals(Long.TYPE)) {
-            return 0L;
-        } else if (type.equals(Float.TYPE)) {
-            return 0F;
-        } else if (type.equals(Double.TYPE)) {
-            return 0.0;
-        } else if (type.equals(Boolean.TYPE)) {
-            return false;
-        } else if (type.equals(Character.TYPE)) {
-            return (char) 0;
-        } else {
-            return null;
-        }
     }
 }

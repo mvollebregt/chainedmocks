@@ -14,9 +14,9 @@ public class StubReturningValueTest {
     @Test
     public void testStubReturningObject() {
         // given
-        when(() -> mock.provide(String.class)).then(() -> "expected value");
+        when(mock::provideString).then(() -> "expected value");
         // when
-        String value = mock.provide(String.class);
+        String value = mock.provideString();
         // then
         assertEquals("expected value", value);
     }
@@ -84,11 +84,11 @@ public class StubReturningValueTest {
     @Test
     public void testStubReturningBoolean() {
         // given
-        when(mock::provideBoolean).then(() -> true);
+        when(mock::provideBoolean).then(() -> false);
         // when
         boolean value = mock.provideBoolean();
         // then
-        assertEquals(true, value);
+        assertEquals(false, value);
     }
 
     @Test

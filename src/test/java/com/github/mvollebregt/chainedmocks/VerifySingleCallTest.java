@@ -7,7 +7,7 @@ import static com.github.mvollebregt.chainedmocks.ChainedMocks.mock;
 import static com.github.mvollebregt.chainedmocks.ChainedMocks.verify;
 import static org.junit.jupiter.api.Assertions.expectThrows;
 
-public class VerifyTest {
+public class VerifySingleCallTest {
 
     private final ClassToBeMocked mock = mock(ClassToBeMocked.class);
 
@@ -43,9 +43,9 @@ public class VerifyTest {
     @Test
     public void testVerify_MockReturningObject() {
         // when
-        mock.provide(String.class);
+        mock.provideString();
         // then
-        verify(() -> mock.provide(String.class));
+        verify(mock::provideString);
     }
 
     @Test

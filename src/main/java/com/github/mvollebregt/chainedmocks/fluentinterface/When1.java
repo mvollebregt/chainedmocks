@@ -14,7 +14,7 @@ public class When1<T> {
 
     public void then(Supplier<T> behaviour) {
         MockContext context = MockContext.getMockContext();
-        context.stub(context.record(expectedCalls::get), behaviour);
+        context.stub(expectedCalls::get, behaviour);
     }
 
 }

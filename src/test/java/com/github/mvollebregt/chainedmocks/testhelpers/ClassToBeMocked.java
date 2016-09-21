@@ -20,7 +20,11 @@ public class ClassToBeMocked {
         fail("Underlying methods on mocked class should not be called.");
     }
 
-    public <T> T provide(Class<T> clazz) {
+    public void consume(int passingInt) {
+        fail("Underlying methods on mocked class should not be called.");
+    }
+
+    public String provideString() {
         fail("Underlying methods on mocked class should not be called.");
         return null;
     }
