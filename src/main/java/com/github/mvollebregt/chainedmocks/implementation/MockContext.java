@@ -38,9 +38,10 @@ public class MockContext {
     }
 
     Object intercept(Object target, Method method, Object[] arguments) {
-        (recording ? recordedCalls : actualCalls).add(new MethodCall(target, method));
+        MethodCall methodCall = new MethodCall(target, method, arguments);
+        (recording ? recordedCalls : actualCalls).add(methodCall);
         if (!recording) {
-            List<Action> matches = match(new MethodCall(target, method));
+            List<Action> matches = match(methodCall);
             if (matches.size() == 1) {
                 matches.forEach(Action::execute);
             } else if (matches.size() > 1) {

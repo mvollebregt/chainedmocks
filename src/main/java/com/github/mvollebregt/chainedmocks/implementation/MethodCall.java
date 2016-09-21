@@ -1,15 +1,18 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 class MethodCall {
 
     private final Object target;
     private final Method method;
+    private final Object[] arguments;
 
-    MethodCall(Object target, Method method) {
+    MethodCall(Object target, Method method, Object[] arguments) {
         this.target = target;
         this.method = method;
+        this.arguments = arguments;
     }
 
     @Override
@@ -19,7 +22,10 @@ class MethodCall {
 
         MethodCall that = (MethodCall) o;
 
-        return target.equals(that.target) && method.equals(that.method);
+        if (!target.equals(that.target)) return false;
+        if (!method.equals(that.method)) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        return Arrays.equals(arguments, that.arguments);
 
     }
 
@@ -27,6 +33,7 @@ class MethodCall {
     public int hashCode() {
         int result = target.hashCode();
         result = 31 * result + method.hashCode();
+        result = 31 * result + Arrays.hashCode(arguments);
         return result;
     }
 }

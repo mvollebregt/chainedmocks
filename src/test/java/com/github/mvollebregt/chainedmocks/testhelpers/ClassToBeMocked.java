@@ -15,4 +15,8 @@ public class ClassToBeMocked {
     public void yetAnotherAction() {
         fail("Underlying methods on mocked class should not be called.");
     }
+
+    public void consumer(String argument) {
+        fail("Underlying methods on mocked class should not be called.");
+    }
 }
