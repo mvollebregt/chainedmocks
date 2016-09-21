@@ -23,4 +23,20 @@ public class VerifyTest {
     public void testVerify_MockNotCalled() {
         expectThrows(VerificationException.class, () -> verify(mock::action));
     }
+
+    @Test
+    public void testVerify_MockReturningObject() {
+        // when
+        mock.provide(String.class);
+        // then
+        verify(() -> mock.provide(String.class));
+    }
+
+    @Test
+    public void testVerify_MockReturningPrimitive() {
+        // when
+        mock.provideInt();
+        // then
+        verify(mock::provideInt);
+    }
 }
