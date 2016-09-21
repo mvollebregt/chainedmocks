@@ -7,7 +7,7 @@ import static com.github.mvollebregt.chainedmocks.ChainedMocks.mock;
 import static com.github.mvollebregt.chainedmocks.ChainedMocks.verify;
 import static org.junit.jupiter.api.Assertions.expectThrows;
 
-public class VerifyBehaviourTest {
+public class VerifyTest {
 
     private final ClassToBeMocked mock = mock(ClassToBeMocked.class);
 
