@@ -13,6 +13,6 @@ public class When {
 
     public void then(Action behaviour) {
         MockContext context = MockContext.getMockContext();
-        context.stub(context.record(expectedCalls), behaviour);
+        context.stub(context.record(expectedCalls), () -> { behaviour.execute(); return null; });
     }
 }

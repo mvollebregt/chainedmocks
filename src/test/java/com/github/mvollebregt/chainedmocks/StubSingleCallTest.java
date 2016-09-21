@@ -71,9 +71,9 @@ public class StubSingleCallTest {
     @Test
     public void testConsumer_MockCalled() {
         // given
-        when(() -> mock.consumer("expected value")).then(() -> status = "mock called");
+        when(() -> mock.consume("expected value")).then(() -> status = "mock called");
         // when
-        mock.consumer("expected value");
+        mock.consume("expected value");
         // then
         assertEquals("mock called", status);
     }
@@ -81,9 +81,9 @@ public class StubSingleCallTest {
     @Test
     public void testConsumer_MockNotCalled() {
         // given
-        when(() -> mock.consumer("expected value")).then(() -> status = "mock called");
+        when(() -> mock.consume("expected value")).then(() -> status = "mock called");
         // when
-        mock.consumer("other value");
+        mock.consume("other value");
         // then
         assertEquals("mock not called", status);
     }

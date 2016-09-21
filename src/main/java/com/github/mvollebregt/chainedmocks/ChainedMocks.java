@@ -1,11 +1,14 @@
 package com.github.mvollebregt.chainedmocks;
 
 import com.github.mvollebregt.chainedmocks.fluentinterface.When;
+import com.github.mvollebregt.chainedmocks.fluentinterface.When1;
 import com.github.mvollebregt.chainedmocks.function.Action;
 import com.github.mvollebregt.chainedmocks.implementation.*;
 import net.bytebuddy.ByteBuddy;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
+
+import java.util.function.Supplier;
 
 public class ChainedMocks {
 
@@ -19,6 +22,10 @@ public class ChainedMocks {
 
     public static When when(Action expectedCalls) {
         return new When(expectedCalls);
+    }
+
+    public static <T> When1<T> when(Supplier<T> expectedCalls) {
+        return new When1<>(expectedCalls);
     }
 
     public static void verify(Action expectedCalls) {

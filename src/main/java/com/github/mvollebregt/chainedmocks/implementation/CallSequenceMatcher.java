@@ -4,23 +4,24 @@ import com.github.mvollebregt.chainedmocks.function.Action;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 class CallSequenceMatcher {
 
     private final List<MethodCall> methodCalls;
     private final List<Integer> partialMatches = new ArrayList<>();
-    private final Action behaviour;
+    private final Supplier behaviour;
 
     CallSequenceMatcher(CallSequence callSequence) {
         this(callSequence, null);
     }
 
-    CallSequenceMatcher(CallSequence expectedCalls, Action behaviour) {
+    CallSequenceMatcher(CallSequence expectedCalls, Supplier behaviour) {
         this.methodCalls = expectedCalls.getMethodCalls();
         this.behaviour = behaviour;
     }
 
-    Action getBehaviour() {
+    Supplier getBehaviour() {
         return behaviour;
     }
 

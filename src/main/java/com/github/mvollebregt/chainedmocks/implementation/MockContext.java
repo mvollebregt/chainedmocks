@@ -6,6 +6,7 @@ import com.github.mvollebregt.chainedmocks.function.Action;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class MockContext {
@@ -33,7 +34,7 @@ public class MockContext {
         return new CallSequence(recordedCalls);
     }
 
-    public void stub(CallSequence expectedCalls, Action behaviour) {
+    public void stub(CallSequence expectedCalls, Supplier behaviour) {
         matchers.add(new CallSequenceMatcher(expectedCalls, behaviour));
     }
 
@@ -41,9 +42,9 @@ public class MockContext {
         MethodCall methodCall = new MethodCall(target, method, arguments);
         (recording ? recordedCalls : actualCalls).add(methodCall);
         if (!recording) {
-            List<Action> matches = match(methodCall);
+            List<Supplier> matches = match(methodCall);
             if (matches.size() == 1) {
-                matches.forEach(Action::execute);
+                return matches.get(0).get();
             } else if (matches.size() > 1) {
                 throw new AmbiguousExpectationsException();
             }
@@ -51,7 +52,7 @@ public class MockContext {
         return null;
     }
 
-    private List<Action> match(MethodCall methodCall) {
+    private List<Supplier> match(MethodCall methodCall) {
         matchers.forEach(callSequence -> callSequence.match(methodCall));
         return matchers.stream().filter(CallSequenceMatcher::isFullyMatched).map(CallSequenceMatcher::getBehaviour).
                 collect(Collectors.toList());
