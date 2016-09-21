@@ -52,17 +52,31 @@ public class MockContext {
         return provideDefault(method.getReturnType());
     }
 
-    private Object provideDefault(Class type) {
-        if (type.equals(Integer.TYPE)) {
-            return 0;
-        } else {
-            return null;
-        }
-    }
-
     private List<Supplier> match(MethodCall methodCall) {
         matchers.forEach(callSequence -> callSequence.match(methodCall));
         return matchers.stream().filter(CallSequenceMatcher::isFullyMatched).map(CallSequenceMatcher::getBehaviour).
                 collect(Collectors.toList());
+    }
+
+    private Object provideDefault(Class type) {
+        if (type.equals(Byte.TYPE)) {
+            return (byte) 0;
+        } else if (type.equals(Short.TYPE)) {
+            return (short) 0;
+        }  else if (type.equals(Integer.TYPE)) {
+            return 0;
+        } else if (type.equals(Long.TYPE)) {
+            return 0L;
+        } else if (type.equals(Float.TYPE)) {
+            return 0F;
+        } else if (type.equals(Double.TYPE)) {
+            return 0.0;
+        } else if (type.equals(Boolean.TYPE)) {
+            return false;
+        } else if (type.equals(Character.TYPE)) {
+            return (char) 0;
+        } else {
+            return null;
+        }
     }
 }
