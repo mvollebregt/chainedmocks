@@ -13,7 +13,7 @@ public class MockContext {
 
     private final CallRecorder callRecorder = new CallRecorder();
     private final CallStubber callStubber = new CallStubber();
-    private final List<ActualCall> actualCalls = new ArrayList<>();
+    private final List<MethodCall> actualCalls = new ArrayList<>();
 
 
     public static MockContext getMockContext() {
@@ -33,7 +33,7 @@ public class MockContext {
             return callRecorder.registerCall(target, method, arguments);
         } else {
             Object returnValue =  callStubber.intercept(target, method, arguments);
-            actualCalls.add(new ActualCall(target, method, arguments, returnValue));
+            actualCalls.add(new MethodCall(target, method, arguments, returnValue));
             return returnValue;
         }
     }

@@ -2,13 +2,12 @@ package com.github.mvollebregt.chainedmocks.implementation;
 
 import com.github.mvollebregt.chainedmocks.function.Action;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 class CallSequenceMatcher {
-
-    // TODO: should a CallSequenceMatcher actually have a behaviour property?
 
     private final Action action;
     private final Supplier behaviour;
@@ -30,7 +29,7 @@ class CallSequenceMatcher {
         return fullyMatched;
     }
 
-    void match(ActualCall actualCall) {
+    void match(Object target, Method method, Object[] arguments, Object returnValue) {
         // discard a full match, if there is one
         if (fullyMatched) {
             partialMatches.remove(0);
@@ -44,19 +43,23 @@ class CallSequenceMatcher {
         for (List<Object> returnValues : partialMatches) {
             // is it a match?
             int nextIndex = returnValues.size();
-            List<RecordedCall> recordedCalls = callRecorder.record(action, returnValues);
-            if (actualCall.matches(recordedCalls.get(nextIndex))) {
-                returnValues.add(actualCall.getReturnValue());
+            List<MethodCall> recordedCalls = callRecorder.record(action, returnValues);
+            if (recordedCalls.get(nextIndex).matches(target, method, arguments)) {
+                returnValues.add(returnValue);
                 fullyMatched = returnValues.size() == recordedCalls.size();
                 break;
             }
         }
     }
 
-    boolean matches(List<ActualCall> actualCalls) {
-        return actualCalls.stream().reduce(false, (acc, call) -> {
-            match(call);
-            return acc || isFullyMatched();
+    boolean matches(List<MethodCall> actualCalls) {
+        return actualCalls.stream().reduce(false, (alreadyMatched, call) -> {
+            if (!alreadyMatched) {
+                match(call.getTarget(), call.getMethod(), call.getArguments(), call.getReturnValue());
+                return isFullyMatched();
+            } else {
+                return true;
+            }
         }, Boolean::logicalOr);
     }
 }

@@ -19,17 +19,16 @@ class CallStubber {
     }
 
     Object intercept(Object target, Method method, Object[] arguments) {
-        // TODO: reorganise this a bit
-        Object potentialReturnValue = valueProvider.provide(method.getReturnType());
-        List<Supplier> matches = match(new ActualCall(target, method, arguments, potentialReturnValue));
+        Object defaultReturnValue = valueProvider.provide(method.getReturnType());
+        List<Supplier> matches = match(target, method, arguments, defaultReturnValue);
         if (matches.size() > 1) {
             throw new AmbiguousExpectationsException();
         }
-        return matches.size() == 1 ? matches.get(0).get() : potentialReturnValue;
+        return matches.size() == 1 ? matches.get(0).get() : defaultReturnValue;
     }
 
-    private List<Supplier> match(ActualCall actualCall) {
-        matchers.forEach(callSequence -> callSequence.match(actualCall));
+    private List<Supplier> match(Object target, Method method, Object[] arguments, Object defaultReturnValue) {
+        matchers.forEach(callSequence -> callSequence.match(target, method, arguments, defaultReturnValue));
         return matchers.stream().filter(CallSequenceMatcher::isFullyMatched).map(CallSequenceMatcher::getBehaviour).
                 collect(Collectors.toList());
     }

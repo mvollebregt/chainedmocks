@@ -5,36 +5,40 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class ActualCall {
+class MethodCall {
 
     private final Object target;
     private final Method method;
     private final Object[] arguments;
     private final Object returnValue;
 
-    ActualCall(Object target, Method method, Object[] arguments, Object returnValue) {
+    MethodCall(Object target, Method method, Object[] arguments, Object returnValue) {
         this.target = target;
         this.method = method;
         this.arguments = arguments;
         this.returnValue = returnValue;
     }
 
+    Object getTarget() {
+        return target;
+    }
+
+    Method getMethod() {
+        return method;
+    }
+
+    Object[] getArguments() {
+        return arguments;
+    }
+
     Object getReturnValue() {
         return returnValue;
     }
 
-    boolean matches(RecordedCall recordedCall) {
-        boolean arrayEquals;
-        try {
-            arrayEquals = Arrays.equals(arguments, recordedCall.getArguments());
-        } catch (NullPointerException e) {
-            System.out.println(arguments[0]);
-            System.out.println("-" + recordedCall.getArguments()[0]);
-            throw e;
-        }
-        return target.equals(recordedCall.getTarget()) &&
-                method.equals(recordedCall.getMethod()) &&
-                arrayEquals;
+    boolean matches(Object target, Method method, Object[] arguments) {
+        return this.target.equals(target) &&
+                this.method.equals(method) &&
+                Arrays.equals(this.arguments, arguments);
     }
 
     @Override
