@@ -8,18 +8,18 @@ import java.util.function.Supplier;
 
 class CallSequenceMatcher {
 
+    // TODO: should a CallSequenceMatcher actually have a behaviour property?
+
     private final Action action;
     private final Supplier behaviour;
+    private final CallRecorder callRecorder;
     private boolean fullyMatched = false;
     private final List<List<Object>> partialMatches = new ArrayList<>();
 
-    CallSequenceMatcher(Action action) {
-        this(action, null);
-    }
-
-    CallSequenceMatcher(Action action, Supplier behaviour) {
+    CallSequenceMatcher(Action action, Supplier behaviour, CallRecorder callRecorder) {
         this.action = action;
         this.behaviour = behaviour;
+        this.callRecorder = callRecorder;
     }
 
     Supplier getBehaviour() {
@@ -30,7 +30,7 @@ class CallSequenceMatcher {
         return fullyMatched;
     }
 
-    void match(MethodCall actualCall) {
+    void match(ActualCall actualCall) {
         // discard a full match, if there is one
         if (fullyMatched) {
             partialMatches.remove(0);
@@ -44,12 +44,19 @@ class CallSequenceMatcher {
         for (List<Object> returnValues : partialMatches) {
             // is it a match?
             int nextIndex = returnValues.size();
-            List<MethodCall> recordedCalls = MockContext.getMockContext().record(action, new PrerecordedValueProvider(returnValues));
-            if (actualCall.equals(recordedCalls.get(nextIndex))) {
+            List<RecordedCall> recordedCalls = callRecorder.record(action, returnValues);
+            if (actualCall.matches(recordedCalls.get(nextIndex))) {
                 returnValues.add(actualCall.getReturnValue());
                 fullyMatched = returnValues.size() == recordedCalls.size();
                 break;
             }
         }
+    }
+
+    boolean matches(List<ActualCall> actualCalls) {
+        return actualCalls.stream().reduce(false, (acc, call) -> {
+            match(call);
+            return acc || isFullyMatched();
+        }, Boolean::logicalOr);
     }
 }

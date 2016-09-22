@@ -8,6 +8,7 @@ import org.objenesis.Objenesis;
 
 import java.lang.reflect.Method;
 
+import static com.github.mvollebregt.chainedmocks.implementation.MockContext.getMockContext;
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
@@ -37,7 +38,7 @@ public class MockFactory {
     public static class MockMethodInterceptor {
         @RuntimeType
         public static Object intercept(@This Object target, @Origin Method method, @AllArguments Object[] arguments) {
-            return MockContext.getMockContext().intercept(target, method, arguments);
+            return getMockContext().intercept(target, method, arguments);
         }
     }
 

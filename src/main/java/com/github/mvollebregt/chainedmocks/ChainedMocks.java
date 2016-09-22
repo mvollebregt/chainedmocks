@@ -10,6 +10,8 @@ import org.objenesis.ObjenesisStd;
 
 import java.util.function.Supplier;
 
+import static com.github.mvollebregt.chainedmocks.implementation.MockContext.getMockContext;
+
 public class ChainedMocks {
 
     private final static ByteBuddy byteBuddy = new ByteBuddy();
@@ -29,7 +31,7 @@ public class ChainedMocks {
     }
 
     public static void verify(Action expectedCalls) {
-        if (!MockContext.getMockContext().getActualCalls().isMatchedBy(expectedCalls)) {
+        if (!getMockContext().verify(expectedCalls)) {
             throw new VerificationException();
         }
     }

@@ -1,7 +1,8 @@
 package com.github.mvollebregt.chainedmocks.fluentinterface;
 
 import com.github.mvollebregt.chainedmocks.function.Action;
-import com.github.mvollebregt.chainedmocks.implementation.MockContext;
+
+import static com.github.mvollebregt.chainedmocks.implementation.MockContext.getMockContext;
 
 public class When {
 
@@ -12,7 +13,6 @@ public class When {
     }
 
     public void then(Action behaviour) {
-        MockContext context = MockContext.getMockContext();
-        context.stub(expectedCalls, () -> { behaviour.execute(); return null; });
+        getMockContext().stub(expectedCalls, () -> { behaviour.execute(); return null; });
     }
 }

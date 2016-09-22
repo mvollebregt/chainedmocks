@@ -1,8 +1,8 @@
 package com.github.mvollebregt.chainedmocks.fluentinterface;
 
-import com.github.mvollebregt.chainedmocks.implementation.MockContext;
-
 import java.util.function.Supplier;
+
+import static com.github.mvollebregt.chainedmocks.implementation.MockContext.getMockContext;
 
 public class When1<T> {
 
@@ -13,8 +13,7 @@ public class When1<T> {
     }
 
     public void then(Supplier<T> behaviour) {
-        MockContext context = MockContext.getMockContext();
-        context.stub(expectedCalls::get, behaviour);
+        getMockContext().stub(expectedCalls::get, behaviour);
     }
 
 }

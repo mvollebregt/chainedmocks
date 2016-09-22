@@ -32,6 +32,8 @@ class IncrementingValueProvider implements ValueProvider {
             return seed % 2 == 0;
         } else if (type.equals(Character.TYPE)) {
             return (char) seed;
+        } else if (type.equals(String.class)) {
+            return String.valueOf(seed);
         } else if (type.equals(Void.TYPE)) {
             return null;
         } else {
