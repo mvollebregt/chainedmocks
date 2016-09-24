@@ -13,6 +13,11 @@ public class When {
     }
 
     public void then(Action behaviour) {
-        getMockContext().stub(expectedCalls, () -> { behaviour.execute(); return null; });
+        getMockContext().stub(
+                params -> expectedCalls.execute(),
+                params -> {
+                    behaviour.execute();
+                    return null;
+                });
     }
 }

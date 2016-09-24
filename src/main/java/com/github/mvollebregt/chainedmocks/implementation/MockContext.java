@@ -1,11 +1,11 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
-import com.github.mvollebregt.chainedmocks.function.Action;
+import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
+import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class MockContext {
 
@@ -20,12 +20,12 @@ public class MockContext {
         return mockContext;
     }
 
-    public void stub(Action action, Supplier behaviour) {
-        callStubber.addStub(action, behaviour, callRecorder);
+    public void stub(ParameterisedAction action, ParameterisedFunction behaviour, Class... wildcardTypes) {
+        callStubber.addStub(action, behaviour, wildcardTypes, callRecorder);
     }
 
-    public boolean verify(Action action) {
-        return new CallSequenceMatcher(action, null, callRecorder).matches(actualCalls);
+    public boolean verify(ParameterisedAction action, Class... wildcardTypes) {
+        return new CallSequenceMatcher(action, null, wildcardTypes, callRecorder).matches(actualCalls);
     }
 
     Object intercept(Object target, Method method, Object[] arguments) {

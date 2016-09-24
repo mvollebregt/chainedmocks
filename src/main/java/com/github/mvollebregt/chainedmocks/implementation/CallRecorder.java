@@ -1,6 +1,6 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
-import com.github.mvollebregt.chainedmocks.function.Action;
+import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,11 +16,11 @@ class CallRecorder {
         return recording;
     }
 
-    List<MethodCall> record(Action action, List<Object> returnValues) {
-        this.valueProvider = new PrerecordedValueProvider(returnValues);
+    List<MethodCall> record(ParameterisedAction action, Object[] wildcards, ValueProvider valueProvider) {
+        this.valueProvider = valueProvider;
         recordedCalls = new ArrayList<>();
         recording = true;
-        action.execute();
+        action.accept(wildcards);
         recording = false;
         return recordedCalls;
     }

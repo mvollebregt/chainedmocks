@@ -3,13 +3,11 @@ package com.github.mvollebregt.chainedmocks;
 import com.github.mvollebregt.chainedmocks.testhelpers.ClassToBeMocked;
 import org.junit.jupiter.api.Test;
 
-import static com.github.mvollebregt.chainedmocks.ChainedMocks.mock;
-import static com.github.mvollebregt.chainedmocks.ChainedMocks.verify;
-import static com.github.mvollebregt.chainedmocks.ChainedMocks.when;
+import static com.github.mvollebregt.chainedmocks.ChainedMocks.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.expectThrows;
 
-public class VerifyChainedCallsTest {
+public class ChainedCallsTest {
 
     private final ClassToBeMocked mock = mock(ClassToBeMocked.class);
     private String status = "mock not called";
