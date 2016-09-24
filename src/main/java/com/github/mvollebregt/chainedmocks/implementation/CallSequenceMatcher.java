@@ -16,7 +16,8 @@ class CallSequenceMatcher {
     private final List<PartialMatch> partialMatches = new ArrayList<>();
     private PartialMatch foundMatch = null;
 
-    CallSequenceMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes, CallRecorder callRecorder) {
+    CallSequenceMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
+                        CallRecorder callRecorder) {
         this.action = action;
         this.behaviour = behaviour;
         this.callRecorder = callRecorder;
@@ -39,16 +40,16 @@ class CallSequenceMatcher {
         }
         // make sure we detect a new partial match, if there is one
         if (partialMatches.isEmpty() || partialMatches.get(partialMatches.size() - 1).nextIndex() != 0) {
-            partialMatches.add(new PartialMatch(wildcardMatcher.size()));
+            partialMatches.add(new PartialMatch(wildcardMatcher.getTypes()));
         }
         // find the first partial match that matches the new method call, and add to it
         for (PartialMatch partialMatch : partialMatches) {
             // did we find new wildcard values?
             wildcardMatcher.get(partialMatch.nextIndex(), target, method).forEach(wildcard ->
-                    partialMatch.setWildcard(wildcard.getWildcardIndex(), arguments[wildcard.getArgumentNumber()]));
+                    partialMatch.setWildcard(wildcard.getWildcardIndex(), arguments[wildcard.getArgumentIndex()]));
             // is it a match?
-            List<MethodCall> recordedCalls = callRecorder.record(action, partialMatch.getWildcards(),
-                    new PrerecordedValueProvider(partialMatch.getReturnValues()));
+            List<MethodCall> recordedCalls = callRecorder.record(
+                    action, partialMatch.getWildcards(), partialMatch.getReturnValues());
             if (recordedCalls.get(partialMatch.nextIndex()).matches(target, method, arguments)) {
                 partialMatch.addReturnValue(returnValue);
                 foundMatch = partialMatch.nextIndex() == recordedCalls.size() ? partialMatch : null;

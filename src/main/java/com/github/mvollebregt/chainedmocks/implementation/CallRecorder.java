@@ -16,6 +16,10 @@ class CallRecorder {
         return recording;
     }
 
+    List<MethodCall> record(ParameterisedAction action, Object[] wildcards, List<Object> returnValues) {
+        return record(action, wildcards, new PrerecordedValueProvider(returnValues));
+    }
+
     List<MethodCall> record(ParameterisedAction action, Object[] wildcards, ValueProvider valueProvider) {
         this.valueProvider = valueProvider;
         recordedCalls = new ArrayList<>();

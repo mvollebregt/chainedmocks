@@ -1,5 +1,6 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
+import com.github.mvollebregt.chainedmocks.UnusedWildcardException;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 
 import java.lang.reflect.Method;
@@ -9,41 +10,49 @@ import java.util.stream.Stream;
 
 class WildcardMatcher {
 
+    private final Class[] wildcardTypes;
     private final Wildcard[] wildcards;
 
-    private WildcardMatcher(int numberOfWildcards) {
-        this.wildcards = new Wildcard[numberOfWildcards];
+    private WildcardMatcher(Class[] wildcardTypes) {
+        this.wildcardTypes = wildcardTypes;
+        this.wildcards = new Wildcard[wildcardTypes.length];
     }
 
-    private void setWildcardMarker(int wildcardIndex, int callNumber, int argumentIndex, Object target, Method method) {
-        wildcards[wildcardIndex] = new Wildcard(wildcardIndex, callNumber, argumentIndex, target, method);
+    Class[] getTypes() {
+        return wildcardTypes;
     }
 
-    List<Wildcard> get(int callNumber, Object target, Method method) {
-        return Stream.of(wildcards).filter(wildcard -> wildcard.matches(callNumber, target, method)).collect(Collectors.toList());
+    List<Wildcard> get(int callIndex, Object target, Method method) {
+        return Stream.of(wildcards).filter(wildcard -> wildcard != null && wildcard.matches(callIndex, target, method)).
+                collect(Collectors.toList());
     }
 
-    int size() {
-        return wildcards.length;
+    private void setWildcardMarker(int wildcardIndex, int callIndex, int argumentIndex, Object target, Method method) {
+        wildcards[wildcardIndex] = new Wildcard(wildcardIndex, callIndex, argumentIndex, target, method);
     }
 
     static WildcardMatcher findWildcards(ParameterisedAction action, Class[] wildcardTypes, CallRecorder callRecorder) {
-        ValueProvider valueProvider = new IncrementingValueProvider(1);
+        ValueProvider valueProvider = new IncrementingValueProvider();
         Object[] wildcardValues = new Object[wildcardTypes.length];
         for (int i = 0; i < wildcardTypes.length; i++) {
             wildcardValues[i] = valueProvider.provide(wildcardTypes[i]);
         }
         List<MethodCall> recordedCalls = callRecorder.record(action, wildcardValues, valueProvider);
-        WildcardMatcher wildcardMatcher = new WildcardMatcher(wildcardTypes.length);
-        for (int callNumber = 0; callNumber < recordedCalls.size(); callNumber++) {
-            MethodCall recordedCall = recordedCalls.get(callNumber);
+        WildcardMatcher wildcardMatcher = new WildcardMatcher(wildcardTypes);
+        for (int callIndex = 0; callIndex < recordedCalls.size(); callIndex++) {
+            MethodCall recordedCall = recordedCalls.get(callIndex);
             Object[] arguments = recordedCall.getArguments();
             for (int argumentIndex = 0; argumentIndex < arguments.length; argumentIndex++) {
                 for (int wildcardIndex = 0; wildcardIndex < wildcardValues.length; wildcardIndex++) {
-                    if (arguments[argumentIndex] == wildcardValues[wildcardIndex]) {
-                        wildcardMatcher.setWildcardMarker(wildcardIndex, callNumber, argumentIndex, recordedCall.getTarget(), recordedCall.getMethod());
+                    if (arguments[argumentIndex].equals(wildcardValues[wildcardIndex])) {
+                        wildcardMatcher.setWildcardMarker(wildcardIndex, callIndex, argumentIndex, recordedCall.getTarget(), recordedCall.getMethod());
                     }
                 }
+            }
+        }
+        for (int i = 0; i < wildcardTypes.length; i++) {
+            if (wildcardMatcher.wildcards[i] == null) {
+                throw new UnusedWildcardException(wildcardTypes[i], i);
             }
         }
         return wildcardMatcher;

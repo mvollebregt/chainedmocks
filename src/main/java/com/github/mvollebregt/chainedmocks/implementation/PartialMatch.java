@@ -8,8 +8,11 @@ class PartialMatch {
     private final Object[] wildcards;
     private final List<Object> returnValues = new ArrayList<>();
 
-    PartialMatch(int numberOfWildcards) {
-        this.wildcards = new Object[numberOfWildcards];
+    PartialMatch(Class[] wildcardTypes) {
+        wildcards = new Object[wildcardTypes.length];
+        for (int i = 0; i < wildcardTypes.length; i++) {
+            wildcards[i] = DefaultValueProvider.provideDefault(wildcardTypes[i]);
+        }
     }
 
     Object[] getWildcards() {

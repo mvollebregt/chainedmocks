@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 class CallStubber {
 
     private final List<CallSequenceMatcher> matchers = new ArrayList<>();
-    private final ValueProvider valueProvider = new IncrementingValueProvider(1);
+    private final ValueProvider valueProvider = new IncrementingValueProvider();
 
     void addStub(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes, CallRecorder callRecorder) {
         matchers.add(new CallSequenceMatcher(action, behaviour, wildcardTypes, callRecorder));

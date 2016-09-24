@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static com.github.mvollebregt.chainedmocks.ChainedMocks.mock;
 import static com.github.mvollebregt.chainedmocks.ChainedMocks.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.expectThrows;
 
 public class WildcardsTest {
 
@@ -20,5 +21,22 @@ public class WildcardsTest {
         mock.consume("argument");
         // then
         assertEquals("mock called with wildcard argument", status);
+    }
+
+    @Test
+    public void testStubPrimitiveWildcard() {
+        // given
+        when(mock::consume, Integer.class).then(wildcard -> status = "mock called with wildcard " + wildcard);
+        // when
+        mock.consume(3);
+        // then
+        assertEquals("mock called with wildcard 3", status);
+    }
+
+    @Test
+    public void testWildcardNotFound() {
+        expectThrows(UnusedWildcardException.class, () ->
+                when(param -> mock.action(), Integer.class).then(wildcard -> {
+                }));
     }
 }
