@@ -7,7 +7,7 @@ import static com.github.mvollebregt.chainedmocks.ChainedMocks.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.expectThrows;
 
-public class ChainedCallsTest {
+public class CallSequencePassingValuesTest {
 
     private final ClassToBeMocked mock = mock(ClassToBeMocked.class);
     private String status = "mock not called";

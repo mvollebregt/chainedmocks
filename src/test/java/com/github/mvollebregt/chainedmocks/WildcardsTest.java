@@ -7,7 +7,7 @@ import static com.github.mvollebregt.chainedmocks.ChainedMocks.mock;
 import static com.github.mvollebregt.chainedmocks.ChainedMocks.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StubWithWildcardsTest {
+public class WildcardsTest {
 
     private final ClassToBeMocked mock = mock(ClassToBeMocked.class);
     private String status = "mock not called";
