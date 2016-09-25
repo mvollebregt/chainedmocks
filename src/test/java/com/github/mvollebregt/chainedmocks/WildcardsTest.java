@@ -34,6 +34,32 @@ public class WildcardsTest {
     }
 
     @Test
+    public void testWildcardUsedTwice_Success() {
+        when(wildcard -> {
+            mock.consume(wildcard);
+            mock.consume(wildcard);
+        }, String.class).then(wildcard -> status = "call sequence called with wildcard " + wildcard);
+        // when
+        mock.consume("argument");
+        mock.consume("argument");
+        // then
+        assertEquals("call sequence called with wildcard argument", status);
+    }
+
+    @Test
+    public void testWildcardUsedTwice_Failure() {
+        when(wildcard -> {
+            mock.consume(wildcard);
+            mock.consume(wildcard);
+        }, String.class).then(wildcard -> status = "call sequence called with wildcard " + wildcard);
+        // when
+        mock.consume("argument");
+        mock.consume("argument");
+        // then
+        assertEquals("call sequence called with wildcard argument", status);
+    }
+
+    @Test
     public void testWildcardNotFound() {
         expectThrows(UnusedWildcardException.class, () ->
                 when(param -> mock.action(), Integer.class).then(wildcard -> {
