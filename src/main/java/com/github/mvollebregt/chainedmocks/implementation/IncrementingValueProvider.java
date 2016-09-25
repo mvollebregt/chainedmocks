@@ -3,7 +3,7 @@ package com.github.mvollebregt.chainedmocks.implementation;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
-class IncrementingValueProvider implements ValueProvider {
+class IncrementingValueProvider extends ValueProvider {
 
     private static final long INITIAL_SEED = 19760713;
 
@@ -15,8 +15,7 @@ class IncrementingValueProvider implements ValueProvider {
         this.seed = INITIAL_SEED;
     }
 
-    @Override
-    public Object provide(Class type) {
+    Object provide(Class type) {
         seed++;
         if (type.equals(Byte.TYPE)) {
             return (byte) seed;

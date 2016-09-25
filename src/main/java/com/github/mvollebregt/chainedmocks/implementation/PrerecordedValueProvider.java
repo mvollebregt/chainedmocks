@@ -2,7 +2,7 @@ package com.github.mvollebregt.chainedmocks.implementation;
 
 import java.util.List;
 
-class PrerecordedValueProvider implements ValueProvider {
+class PrerecordedValueProvider extends ValueProvider {
 
     private final List<Object> prerecordedValues;
     private int i = -1;
@@ -11,8 +11,7 @@ class PrerecordedValueProvider implements ValueProvider {
         this.prerecordedValues = prerecordedValues;
     }
 
-    @Override
-    public Object provide(Class type) {
+    Object provide(Class type) {
         i++;
         return i < prerecordedValues.size() ? prerecordedValues.get(i) : DefaultValueProvider.provideDefault(type);
     }

@@ -1,7 +1,12 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
-interface ValueProvider {
+import java.util.stream.Stream;
 
-    Object provide(Class type);
+abstract class ValueProvider {
 
+    abstract Object provide(Class type);
+
+    Object[] provide(Class... wildcardTypes) {
+        return Stream.of(wildcardTypes).map(this::provide).toArray();
+    }
 }

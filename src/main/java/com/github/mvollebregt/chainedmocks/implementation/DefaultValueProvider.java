@@ -2,10 +2,11 @@ package com.github.mvollebregt.chainedmocks.implementation;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
-class DefaultValueProvider implements ValueProvider {
+import java.util.stream.Stream;
 
-    @Override
-    public Object provide(Class type) {
+class DefaultValueProvider extends ValueProvider {
+
+    Object provide(Class type) {
         return DefaultValueProvider.provideDefault(type);
     }
 
@@ -29,5 +30,9 @@ class DefaultValueProvider implements ValueProvider {
         } else {
             return null;
         }
+    }
+
+    static Object[] provideDefault(Class[] wildcardTypes) {
+        return Stream.of(wildcardTypes).map(DefaultValueProvider::provideDefault).toArray();
     }
 }
