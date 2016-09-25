@@ -23,7 +23,7 @@ class CallSequenceMatcher {
         this.action = action;
         this.behaviour = behaviour;
         this.callRecorder = callRecorder;
-        this.prerecordedCalls = prerecord(wildcardTypes);
+        this.prerecordedCalls = prerecord(action, wildcardTypes);
         this.initialWildcards = DefaultValueProvider.provideDefault(wildcardTypes);
     }
 
@@ -33,17 +33,6 @@ class CallSequenceMatcher {
 
     Object applyBehaviour() {
         return isFullyMatched() ? behaviour.apply(foundMatch.getWildcards()) : null;
-    }
-
-    private List<MethodCall> prerecord(Class[] wildcardTypes) {
-        // prerecord the action so we can find all wild cards
-        ValueProvider valueProvider = new IncrementingValueProvider();
-        List<MethodCall> prerecordedCalls = callRecorder.record(action, valueProvider.provide(wildcardTypes), valueProvider);
-        List<Integer> unusedWildcardIndices = callRecorder.getUnusedWildcardIndices();
-        if (!unusedWildcardIndices.isEmpty()) {
-            throw new UnusedWildcardException(unusedWildcardIndices);
-        }
-        return prerecordedCalls;
     }
 
     void match(Object target, Method method, Object[] arguments, Object returnValue) {
@@ -66,9 +55,8 @@ class CallSequenceMatcher {
                 prerecordedCall.getWildcardMarkers().forEach(pointer ->
                         partialMatch.setWildcard(pointer.getWildcardIndex(), arguments[pointer.getArgumentIndex()]));
                 // if we use the newly found wild cards, do target, method and arguments match?
-                // TODO: we should only rerecord if there are new wildcards!
-                List<MethodCall> rerecordedCalls = callRecorder.record(
-                        action, partialMatch.getWildcards(), partialMatch.getReturnValues());
+                // TODO 2: we should only rerecord if there are new wildcards - we should store the already recorded calls in the partial match object!
+                List<MethodCall> rerecordedCalls = callRecorder.record(action, new SimulatingCallInterceptor(partialMatch));
                 if (rerecordedCalls.get(nextIndex).matches(target, method, arguments)) {
                     partialMatch.addReturnValue(returnValue);
                     foundMatch = partialMatch.nextIndex() == rerecordedCalls.size() ? partialMatch : null;
@@ -87,5 +75,15 @@ class CallSequenceMatcher {
                 return true;
             }
         }, Boolean::logicalOr);
+    }
+
+    private List<MethodCall> prerecord(ParameterisedAction action, Class[] wildcardTypes) {
+        WildcardMatchingCallInterceptor wildcardMatcher = new WildcardMatchingCallInterceptor(wildcardTypes);
+        List<MethodCall> recordedCalls = callRecorder.record(action, wildcardMatcher);
+        List<Integer> unusedWildcardIndices = wildcardMatcher.getUnusedWildcardIndices();
+        if (!unusedWildcardIndices.isEmpty()) {
+            throw new UnusedWildcardException(unusedWildcardIndices);
+        }
+        return recordedCalls;
     }
 }

@@ -3,7 +3,9 @@ package com.github.mvollebregt.chainedmocks.implementation;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
-class IncrementingValueProvider extends ValueProvider {
+import java.util.stream.Stream;
+
+class IncrementingValueProvider {
 
     private static final long INITIAL_SEED = 19760713;
 
@@ -16,7 +18,7 @@ class IncrementingValueProvider extends ValueProvider {
     }
 
     Object provide(Class type) {
-        seed++;
+        seed += 27;
         if (type.equals(Byte.TYPE)) {
             return (byte) seed;
         } else if (type.equals(Short.TYPE) || type.equals(Short.class)) {
@@ -40,5 +42,9 @@ class IncrementingValueProvider extends ValueProvider {
         } else {
             return objenesis.newInstance(type);
         }
+    }
+
+    Object[] provide(Class[] wildcardTypes) {
+        return Stream.of(wildcardTypes).map(this::provide).toArray();
     }
 }

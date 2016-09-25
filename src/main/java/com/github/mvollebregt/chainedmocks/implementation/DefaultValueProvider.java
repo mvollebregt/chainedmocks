@@ -4,10 +4,9 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.stream.Stream;
 
-class DefaultValueProvider extends ValueProvider {
+class DefaultValueProvider {
 
-    Object provide(Class type) {
-        return DefaultValueProvider.provideDefault(type);
+    private DefaultValueProvider() {
     }
 
     static Object provideDefault(Class type) {

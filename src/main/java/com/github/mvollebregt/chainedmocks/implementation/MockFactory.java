@@ -38,7 +38,7 @@ public class MockFactory {
     public static class MockMethodInterceptor {
         @RuntimeType
         public static Object intercept(@This Object target, @Origin Method method, @AllArguments Object[] arguments) {
-            return getMockContext().intercept(target, method, arguments);
+            return getMockContext().getCurrentInterceptor().intercept(target, method, arguments);
         }
     }
 
