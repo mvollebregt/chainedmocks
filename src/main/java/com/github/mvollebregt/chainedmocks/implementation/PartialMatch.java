@@ -16,23 +16,29 @@ import static java.util.Collections.singletonList;
 
 class PartialMatch {
 
+    private final ParameterisedAction action;
+    private final CallRecorder callRecorder;
     private final WildcardMarkers wildcardMarkers;
     private final SimulationValues simulationValues;
     private final List<MethodCall> remainingCalls;
     private final Map<MatchingValue, PartialMatch> submatches;
 
-    PartialMatch(Object[] initialWildcards, WildcardMarkers wildcardMarkers, List<MethodCall> prerecordedCalls) {
-        this(wildcardMarkers, new SimulationValues(initialWildcards, emptyList()), prerecordedCalls);
+    PartialMatch(ParameterisedAction action, CallRecorder callRecorder, Object[] initialWildcards,
+                 WildcardMarkers wildcardMarkers, List<MethodCall> prerecordedCalls) {
+        this(action, callRecorder, wildcardMarkers, new SimulationValues(initialWildcards, emptyList()), prerecordedCalls);
     }
 
-    private PartialMatch(WildcardMarkers wildcardMarkers, SimulationValues simulationValues, List<MethodCall> remainingCalls) {
+    private PartialMatch(ParameterisedAction action, CallRecorder callRecorder, WildcardMarkers wildcardMarkers,
+                         SimulationValues simulationValues, List<MethodCall> remainingCalls) {
+        this.action = action;
+        this.callRecorder = callRecorder;
         this.wildcardMarkers = wildcardMarkers;
         this.simulationValues = simulationValues;
         this.remainingCalls = remainingCalls;
         this.submatches = new HashMap<>();
     }
 
-    Stream<Object[]> match(MethodCall methodCall, ParameterisedAction action, CallRecorder callRecorder) {
+    Stream<Object[]> match(MethodCall methodCall) {
 
         Object target = methodCall.getTarget();
         Method method = methodCall.getMethod();
@@ -47,12 +53,12 @@ class PartialMatch {
             }
             return Stream.empty();
         } else {
-            Stream<Object[]> matches = submatches.values().stream().flatMap(submatch -> submatch.match(methodCall, action, callRecorder));
+            Stream<Object[]> matches = submatches.values().stream().flatMap(submatch -> submatch.match(methodCall));
             if (matchesNextExpectedCall(target, method, arguments)) {
                 int methodCallIndex = simulationValues.getReturnValues().size();
                 MatchingValue matchingValue = new MatchingValue(method.getReturnType(), returnValue, wildcardMarkers.matchArguments(methodCallIndex, arguments));
                 if (!submatches.containsKey(matchingValue)) {
-                    submatches.put(matchingValue, extend(matchingValue, action, callRecorder));
+                    submatches.put(matchingValue, extend(matchingValue));
                 }
             }
             return matches;
@@ -71,14 +77,14 @@ class PartialMatch {
                                 arguments[argumentIndex].equals(nextExpectedCall.getArguments()[argumentIndex]));
     }
 
-    private PartialMatch extend(MatchingValue matchingValue, ParameterisedAction action, CallRecorder callRecorder) {
+    private PartialMatch extend(MatchingValue matchingValue) {
         SimulationValues newSimulationValues = simulationValues.extend(matchingValue);
         if (matchingValue.containsNewInformation()) {
             List<MethodCall> recordedCalls = callRecorder.record(action, new SimulatingCallInterceptor(newSimulationValues));
             List<MethodCall> newRemainingCalls = recordedCalls.stream().skip(newSimulationValues.getReturnValues().size()).collect(Collectors.toList());
-            return new PartialMatch(wildcardMarkers, newSimulationValues, newRemainingCalls);
+            return new PartialMatch(action, callRecorder, wildcardMarkers, newSimulationValues, newRemainingCalls);
         } else {
-            return new PartialMatch(wildcardMarkers, newSimulationValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
+            return new PartialMatch(action, callRecorder, wildcardMarkers, newSimulationValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
         }
     }
 }
