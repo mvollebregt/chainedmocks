@@ -3,20 +3,23 @@ package com.github.mvollebregt.chainedmocks.implementation;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 class PartialMatch {
 
     private final WildcardMarkers wildcardMarkers;
     private final SimulationValues simulationValues;
     private final List<MethodCall> remainingCalls;
-    private final Set<MatchingValue> alreadyMatchedValues = new HashSet<>();
+    private final Map<MatchingValue, PartialMatch> submatches;
 
     PartialMatch(Object[] initialWildcards, WildcardMarkers wildcardMarkers, List<MethodCall> prerecordedCalls) {
         this(wildcardMarkers, new SimulationValues(initialWildcards, emptyList()), prerecordedCalls);
@@ -26,29 +29,34 @@ class PartialMatch {
         this.wildcardMarkers = wildcardMarkers;
         this.simulationValues = simulationValues;
         this.remainingCalls = remainingCalls;
+        this.submatches = new HashMap<>();
     }
 
-    Object[] getWildcards() {
-        return simulationValues.getWildcards();
-    }
+    Stream<Object[]> match(MethodCall methodCall, ParameterisedAction action, CallRecorder callRecorder) {
 
-    boolean isFullmatch() {
-        return remainingCalls.isEmpty();
-    }
-
-    PartialMatch newMatch(MethodCall methodCall, ParameterisedAction action, CallRecorder callRecorder) {
         Object target = methodCall.getTarget();
         Method method = methodCall.getMethod();
         Object[] arguments = methodCall.getArguments();
         Object returnValue = methodCall.getReturnValue();
-        if (matchesNextExpectedCall(target, method, arguments)) {
-            int methodCallIndex = simulationValues.getReturnValues().size();
-            MatchingValue matchingValue = new MatchingValue(method.getReturnType(), returnValue, wildcardMarkers.matchArguments(methodCallIndex, arguments));
-            if (remainingCalls.size() == 1 || alreadyMatchedValues.add(matchingValue)) {
-                return extend(matchingValue, action, callRecorder);
+
+        if (remainingCalls.size() == 1) {
+            if (matchesNextExpectedCall(target, method, arguments)) {
+                int methodCallIndex = simulationValues.getReturnValues().size();
+                MatchingValue matchingValue = new MatchingValue(method.getReturnType(), returnValue, wildcardMarkers.matchArguments(methodCallIndex, arguments));
+                return singletonList(simulationValues.extend(matchingValue).getWildcards()).stream();
             }
+            return Stream.empty();
+        } else {
+            Stream<Object[]> matches = submatches.values().stream().flatMap(submatch -> submatch.match(methodCall, action, callRecorder));
+            if (matchesNextExpectedCall(target, method, arguments)) {
+                int methodCallIndex = simulationValues.getReturnValues().size();
+                MatchingValue matchingValue = new MatchingValue(method.getReturnType(), returnValue, wildcardMarkers.matchArguments(methodCallIndex, arguments));
+                if (!submatches.containsKey(matchingValue)) {
+                    submatches.put(matchingValue, extend(matchingValue, action, callRecorder));
+                }
+            }
+            return matches;
         }
-        return null;
     }
 
     private boolean matchesNextExpectedCall(Object target, Method method, Object[] arguments) {

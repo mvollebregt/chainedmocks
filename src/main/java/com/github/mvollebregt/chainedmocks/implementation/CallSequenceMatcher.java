@@ -4,11 +4,7 @@ import com.github.mvollebregt.chainedmocks.UnusedWildcardException;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class CallSequenceMatcher {
@@ -16,7 +12,7 @@ class CallSequenceMatcher {
     private final ParameterisedAction action;
     private final ParameterisedFunction behaviour;
     private final CallRecorder callRecorder;
-    private final List<PartialMatch> partialMatches = new ArrayList<>();
+    private final PartialMatch partialMatch;
 
     CallSequenceMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
                         CallRecorder callRecorder) {
@@ -27,7 +23,7 @@ class CallSequenceMatcher {
         WildcardMatchingCallInterceptor wildcardMatcher = prerecord(action, wildcardTypes);
         WildcardMarkers wildcardMarkers = wildcardMatcher.getWildcardMarkers();
         List<MethodCall> recordedCalls = wildcardMatcher.getRecordedCalls();
-        partialMatches.add(new PartialMatch(initialWildcards, wildcardMarkers, recordedCalls));
+        partialMatch = new PartialMatch(initialWildcards, wildcardMarkers, recordedCalls);
     }
 
     Object applyBehaviour(Object[] arguments) {
@@ -35,14 +31,7 @@ class CallSequenceMatcher {
     }
 
     Stream<Object[]> match(MethodCall methodCall) {
-
-        Map<Boolean, List<PartialMatch>> newMatches = partialMatches.stream().map(partialMatch ->
-                partialMatch.newMatch(methodCall, action, callRecorder)).
-                filter(Objects::nonNull).
-                collect(Collectors.partitioningBy(PartialMatch::isFullmatch));
-
-        partialMatches.addAll(newMatches.get(false));
-        return newMatches.get(true).stream().map(PartialMatch::getWildcards);
+        return partialMatch.match(methodCall, action, callRecorder);
     }
 
     boolean matches(List<MethodCall> actualCalls) {
