@@ -6,12 +6,12 @@ import java.util.List;
 
 class SimulatingCallInterceptor implements CallInterceptor {
 
-    private PartialMatch partialMatch;
+    private final SimulationValues simulationValues;
     private int returnValueCount = -1;
-    private List<MethodCall> recordedCalls = new ArrayList<>();
+    private final List<MethodCall> recordedCalls = new ArrayList<>();
 
-    SimulatingCallInterceptor(PartialMatch partialMatch) {
-        this.partialMatch = partialMatch;
+    SimulatingCallInterceptor(SimulationValues simulationValues) {
+        this.simulationValues = simulationValues;
     }
 
     @Override
@@ -21,7 +21,7 @@ class SimulatingCallInterceptor implements CallInterceptor {
 
     @Override
     public Object[] getWildcards() {
-        return partialMatch.getWildcards();
+        return simulationValues.getWildcards();
     }
 
     @Override
@@ -33,8 +33,8 @@ class SimulatingCallInterceptor implements CallInterceptor {
 
     private Object getReturnValue(Class<?> returnType) {
         returnValueCount++;
-        return returnValueCount < partialMatch.getReturnValues().size() ?
-                partialMatch.getReturnValues().get(returnValueCount) : DefaultValueProvider.provideDefault(returnType);
+        return returnValueCount < simulationValues.getReturnValues().size() ?
+                simulationValues.getReturnValues().get(returnValueCount) : DefaultValueProvider.provideDefault(returnType);
     }
 
 }

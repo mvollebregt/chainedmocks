@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -14,6 +13,7 @@ class WildcardMatchingCallInterceptor implements CallInterceptor {
     private final IncrementingValueProvider valueProvider = new IncrementingValueProvider();
     private final Object[] wildcards;
     private final Map<Object, Integer> wildcardIndices;
+    private final WildcardMarkers wildcardMarkers = new WildcardMarkers();
     private final List<MethodCall> recordedCalls = new ArrayList<>();
 
     WildcardMatchingCallInterceptor(Class[] wildcardTypes) {
@@ -27,15 +27,19 @@ class WildcardMatchingCallInterceptor implements CallInterceptor {
         return wildcards;
     }
 
+    WildcardMarkers getWildcardMarkers() {
+        return wildcardMarkers;
+    }
+
     @Override
     public List<MethodCall> getRecordedCalls() {
         return recordedCalls;
     }
 
     public Object intercept(Object target, Method method, Object[] arguments) {
-        List<WildcardMarker> wildcardMarkers = matchMethodArgumentsWithWildcards(arguments);
+        matchMethodArgumentsWithWildcards(arguments);
         Object returnValue = valueProvider.provide(method.getReturnType());
-        recordedCalls.add(new MethodCall(target, method, arguments, returnValue, wildcardMarkers));
+        recordedCalls.add(new MethodCall(target, method, arguments, returnValue));
         return returnValue;
     }
 
@@ -43,16 +47,13 @@ class WildcardMatchingCallInterceptor implements CallInterceptor {
         return wildcardIndices.values().stream().sorted().collect(Collectors.toList());
     }
 
-    private List<WildcardMarker> matchMethodArgumentsWithWildcards(Object[] arguments) {
-        return IntStream.range(0, arguments.length).boxed().map(argumentIndex -> {
+    private void matchMethodArgumentsWithWildcards(Object[] arguments) {
+        for (int argumentIndex = 0; argumentIndex < arguments.length; argumentIndex++) {
             Object argument = arguments[argumentIndex];
-            Integer wildcardIndex = wildcardIndices.get(argument);
+            Integer wildcardIndex = wildcardIndices.remove(argument);
             if (wildcardIndex != null) {
-                wildcardIndices.remove(argument);
-                return new WildcardMarker(argumentIndex, wildcardIndex);
-            } else {
-                return null;
+                wildcardMarkers.put(recordedCalls.size(), argumentIndex, wildcardIndex);
             }
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }
     }
 }

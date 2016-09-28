@@ -65,4 +65,29 @@ public class WildcardsTest {
                 when(param -> mock.action(), Integer.class).then(wildcard -> {
                 }));
     }
+
+    @Test
+    public void testDifferentReturnValue() {
+        // given
+        when((wildcard) -> {
+            mock.action();
+            int value = mock.identityFunction(wildcard);
+            mock.consume(value);
+        }, Integer.class).then((wildcard) -> status = "call sequence called"); // TODO: remove dummy parameter
+        // when
+        mock.action();
+        mock.identityFunction(1); // first call is matched, "1" is taken as wildcard
+        int secondReturnValue = mock.identityFunction(2); // however, "2" is the actual wildcard
+        mock.consume(secondReturnValue);
+        // then
+        assertEquals("call sequence called", status);
+    }
+
+    // TODO: implement with clause
+    // TODO: write a README
+    // TODO: throw exception if using boolean or enum wildcards
+    // TODO: use deep clones of wild cards / return values when recording -> the expected call function might alter them?
+    // TODO: when finding wildcards, use == for comparing objects instead of equals -> equals may be overriden and return true
+    // TODO: make lots of test cases
+    // TODO: throw exceptions with better messages and more diagnostic information
 }

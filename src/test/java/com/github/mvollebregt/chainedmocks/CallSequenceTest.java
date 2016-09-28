@@ -92,23 +92,41 @@ public class CallSequenceTest {
     }
 
     @Test
-    public void testVoidSequence_ConflictingMatches() {
+    public void testVoidSequence_DoubleButNonConflictingMatch() {
         // given
         when(() -> {
             mock.otherAction();
             mock.action();
-        }).then(() -> {
-        });
+        }).then(() -> status = "first action called ");
         when(() -> {
             mock.yetAnotherAction();
             mock.action();
-        }).then(() -> {
-        });
+        }).then(() -> status += "and second action called");
+        // when
+        mock.otherAction();
+        mock.yetAnotherAction();
+        mock.action();
+        // then
+        assertEquals("first action called and second action called", status);
+    }
+
+
+    @Test
+    public void testVoidSequence_ConflictingMatches() {
+        // given
+        when(() -> {
+            mock.otherAction();
+            return mock.provideInt();
+        }).then(() -> 2);
+        when(() -> {
+            mock.yetAnotherAction();
+            return mock.provideInt();
+        }).then(() -> 3);
         // when
         mock.otherAction();
         mock.yetAnotherAction();
         // then
-        expectThrows(AmbiguousExpectationsException.class, mock::action);
+        expectThrows(AmbiguousExpectationsException.class, mock::provideInt);
     }
 
     @Test

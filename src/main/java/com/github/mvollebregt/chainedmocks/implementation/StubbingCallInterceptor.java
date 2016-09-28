@@ -7,6 +7,7 @@ import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class StubbingCallInterceptor implements CallInterceptor {
@@ -28,11 +29,11 @@ class StubbingCallInterceptor implements CallInterceptor {
     @Override
     public Object intercept(Object target, Method method, Object[] arguments) {
         Object defaultReturnValue = valueProvider.provide(method.getReturnType());
-        List<Object> matches = match(target, method, arguments, defaultReturnValue);
+        Set<Object> matches = match(new MethodCall(target, method, arguments, defaultReturnValue));
         if (matches.size() > 1) {
             throw new AmbiguousExpectationsException();
         }
-        Object returnValue = matches.size() == 1 ? matches.get(0) : defaultReturnValue;
+        Object returnValue = matches.size() == 1 ? matches.iterator().next() : defaultReturnValue;
         actualCalls.add(new MethodCall(target, method, arguments, returnValue));
         return returnValue;
     }
@@ -42,9 +43,7 @@ class StubbingCallInterceptor implements CallInterceptor {
         matchers.add(new CallSequenceMatcher(action, behaviour, wildcardTypes, callRecorderSwitcher));
     }
 
-    private List<Object> match(Object target, Method method, Object[] arguments, Object defaultReturnValue) {
-        matchers.forEach(callSequence -> callSequence.match(target, method, arguments, defaultReturnValue));
-        return matchers.stream().filter(CallSequenceMatcher::isFullyMatched).map(CallSequenceMatcher::applyBehaviour).
-                collect(Collectors.toList());
+    private Set<Object> match(MethodCall methodCall) {
+        return matchers.stream().flatMap(callSequence -> callSequence.match(methodCall).map(callSequence::applyBehaviour)).collect(Collectors.toSet());
     }
 }

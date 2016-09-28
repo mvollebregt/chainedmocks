@@ -69,4 +69,9 @@ public class ClassToBeMocked {
         fail("Underlying methods on mocked class should not be called.");
         return 0;
     }
+
+    public int identityFunction(int i) {
+        fail("Underlying methods on mocked class should not be called.");
+        return 0;
+    }
 }
