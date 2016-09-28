@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 class StubbingCallInterceptor implements CallInterceptor {
 
-    private final List<CallSequenceMatcher> matchers = new ArrayList<>();
+    private final List<CallMatcher> matchers = new ArrayList<>();
     private final IncrementingValueProvider valueProvider = new IncrementingValueProvider();
     private final List<MethodCall> actualCalls = new ArrayList<>();
 
@@ -40,7 +40,7 @@ class StubbingCallInterceptor implements CallInterceptor {
 
     void addStub(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
                  CallRecorder callRecorderSwitcher) {
-        matchers.add(new CallSequenceMatcher(action, behaviour, wildcardTypes, callRecorderSwitcher));
+        matchers.add(new CallMatcher(action, behaviour, wildcardTypes, callRecorderSwitcher));
     }
 
     private Set<Object> match(MethodCall methodCall) {

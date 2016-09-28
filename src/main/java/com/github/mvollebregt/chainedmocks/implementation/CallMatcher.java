@@ -1,6 +1,8 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
+import com.github.mvollebregt.chainedmocks.UnusedWildcardException;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
+import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -14,28 +16,35 @@ import java.util.stream.Stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-class PartialMatch {
+class CallMatcher {
 
     private final ParameterisedAction action;
+    private final ParameterisedFunction behaviour;
     private final CallRecorder callRecorder;
     private final WildcardMarkers wildcardMarkers;
     private final SimulationValues simulationValues;
     private final List<MethodCall> remainingCalls;
-    private final Map<MatchingValue, PartialMatch> submatches;
+    private final Map<MatchingValue, CallMatcher> submatches = new HashMap<>();
 
-    PartialMatch(ParameterisedAction action, CallRecorder callRecorder, Object[] initialWildcards,
-                 WildcardMarkers wildcardMarkers, List<MethodCall> prerecordedCalls) {
-        this(action, callRecorder, wildcardMarkers, new SimulationValues(initialWildcards, emptyList()), prerecordedCalls);
+    CallMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
+                CallRecorder callRecorder) {
+        this.action = action;
+        this.behaviour = behaviour;
+        this.callRecorder = callRecorder;
+        Object[] initialWildcards = DefaultValueProvider.provideDefault(wildcardTypes);
+        WildcardMatchingCallInterceptor wildcardMatcher = prerecord(action, wildcardTypes);
+        this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
+        this.remainingCalls = wildcardMatcher.getRecordedCalls();
+        this.simulationValues = new SimulationValues(initialWildcards, emptyList());
     }
 
-    private PartialMatch(ParameterisedAction action, CallRecorder callRecorder, WildcardMarkers wildcardMarkers,
-                         SimulationValues simulationValues, List<MethodCall> remainingCalls) {
-        this.action = action;
-        this.callRecorder = callRecorder;
-        this.wildcardMarkers = wildcardMarkers;
+    private CallMatcher(CallMatcher supermatch, SimulationValues simulationValues, List<MethodCall> remainingCalls) {
+        this.action = supermatch.action;
+        this.behaviour = supermatch.behaviour;
+        this.callRecorder = supermatch.callRecorder;
+        this.wildcardMarkers = supermatch.wildcardMarkers;
         this.simulationValues = simulationValues;
         this.remainingCalls = remainingCalls;
-        this.submatches = new HashMap<>();
     }
 
     Stream<Object[]> match(MethodCall methodCall) {
@@ -65,6 +74,15 @@ class PartialMatch {
         }
     }
 
+    Object applyBehaviour(Object[] arguments) {
+        return behaviour.apply(arguments);
+    }
+
+    boolean matches(List<MethodCall> actualCalls) {
+        return actualCalls.stream().reduce(false, (alreadyMatched, methodCall) -> alreadyMatched ||
+                match(methodCall).findAny().isPresent(), Boolean::logicalOr);
+    }
+
     private boolean matchesNextExpectedCall(Object target, Method method, Object[] arguments) {
         int methodCallIndex = simulationValues.getReturnValues().size();
         Set<Integer> argumentIndicesForWildcards = wildcardMarkers.getArgumentIndicesForWildcards(methodCallIndex);
@@ -77,14 +95,25 @@ class PartialMatch {
                                 arguments[argumentIndex].equals(nextExpectedCall.getArguments()[argumentIndex]));
     }
 
-    private PartialMatch extend(MatchingValue matchingValue) {
+    private CallMatcher extend(MatchingValue matchingValue) {
         SimulationValues newSimulationValues = simulationValues.extend(matchingValue);
         if (matchingValue.containsNewInformation()) {
             List<MethodCall> recordedCalls = callRecorder.record(action, new SimulatingCallInterceptor(newSimulationValues));
             List<MethodCall> newRemainingCalls = recordedCalls.stream().skip(newSimulationValues.getReturnValues().size()).collect(Collectors.toList());
-            return new PartialMatch(action, callRecorder, wildcardMarkers, newSimulationValues, newRemainingCalls);
+            return new CallMatcher(this, newSimulationValues, newRemainingCalls);
         } else {
-            return new PartialMatch(action, callRecorder, wildcardMarkers, newSimulationValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
+            return new CallMatcher(this, newSimulationValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
         }
+    }
+
+    // TODO: move this to wildcard matcher?
+    private WildcardMatchingCallInterceptor prerecord(ParameterisedAction action, Class[] wildcardTypes) {
+        WildcardMatchingCallInterceptor wildcardMatcher = new WildcardMatchingCallInterceptor(wildcardTypes);
+        callRecorder.record(action, wildcardMatcher);
+        List<Integer> unusedWildcardIndices = wildcardMatcher.getUnusedWildcardIndices();
+        if (!unusedWildcardIndices.isEmpty()) {
+            throw new UnusedWildcardException(unusedWildcardIndices);
+        }
+        return wildcardMatcher;
     }
 }

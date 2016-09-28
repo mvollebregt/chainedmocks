@@ -19,7 +19,7 @@ public class MockContext {
     }
 
     public boolean verify(ParameterisedAction action, Class... wildcardTypes) {
-        return new CallSequenceMatcher(action, null, wildcardTypes, callRecorder).matches(actualCallInterceptor.getRecordedCalls());
+        return new CallMatcher(action, null, wildcardTypes, callRecorder).matches(actualCallInterceptor.getRecordedCalls());
     }
 
     CallInterceptor getCurrentInterceptor() {
