@@ -1,6 +1,5 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
-import com.github.mvollebregt.chainedmocks.UnusedWildcardException;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 
@@ -22,8 +21,8 @@ class CallMatcher {
     private final ParameterisedFunction behaviour;
     private final CallRecorder callRecorder;
     private final WildcardMarkers wildcardMarkers;
-    private final SimulationValues simulationValues;
     private final List<MethodCall> remainingCalls;
+    private final SimulationValues simulationValues;
     private final Map<MatchingValue, CallMatcher> submatches = new HashMap<>();
 
     CallMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
@@ -31,11 +30,12 @@ class CallMatcher {
         this.action = action;
         this.behaviour = behaviour;
         this.callRecorder = callRecorder;
-        Object[] initialWildcards = DefaultValueProvider.provideDefault(wildcardTypes);
-        WildcardMatchingCallInterceptor wildcardMatcher = prerecord(action, wildcardTypes);
+        WildcardMatchingCallInterceptor wildcardMatcher = new WildcardMatchingCallInterceptor(wildcardTypes);
+        callRecorder.record(action, wildcardMatcher);
+        wildcardMatcher.verifyAllWildcardsMatched();
         this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
         this.remainingCalls = wildcardMatcher.getRecordedCalls();
-        this.simulationValues = new SimulationValues(initialWildcards, emptyList());
+        this.simulationValues = new SimulationValues(DefaultValueProvider.provideDefault(wildcardTypes), emptyList());
     }
 
     private CallMatcher(CallMatcher supermatch, SimulationValues simulationValues, List<MethodCall> remainingCalls) {
@@ -54,24 +54,21 @@ class CallMatcher {
         Object[] arguments = methodCall.getArguments();
         Object returnValue = methodCall.getReturnValue();
 
-        if (remainingCalls.size() == 1) {
-            if (matchesNextExpectedCall(target, method, arguments)) {
-                int methodCallIndex = simulationValues.getReturnValues().size();
-                MatchingValue matchingValue = new MatchingValue(method.getReturnType(), returnValue, wildcardMarkers.matchArguments(methodCallIndex, arguments));
-                return singletonList(simulationValues.extend(matchingValue).getWildcards()).stream();
-            }
-            return Stream.empty();
-        } else {
-            Stream<Object[]> matches = submatches.values().stream().flatMap(submatch -> submatch.match(methodCall));
-            if (matchesNextExpectedCall(target, method, arguments)) {
-                int methodCallIndex = simulationValues.getReturnValues().size();
-                MatchingValue matchingValue = new MatchingValue(method.getReturnType(), returnValue, wildcardMarkers.matchArguments(methodCallIndex, arguments));
+        Stream<Object[]> matches = submatches.values().stream().flatMap(submatch -> submatch.match(methodCall));
+
+        if (matchesNextExpectedCall(target, method, arguments)) {
+            int methodCallIndex = simulationValues.getReturnValues().size();
+            MatchingValue matchingValue = new MatchingValue(method.getReturnType(), returnValue, wildcardMarkers.matchArguments(methodCallIndex, arguments));
+
+            if (remainingCalls.size() == 1) {
+                matches = singletonList(simulationValues.extend(matchingValue).getWildcards()).stream();
+            } else {
                 if (!submatches.containsKey(matchingValue)) {
                     submatches.put(matchingValue, extend(matchingValue));
                 }
             }
-            return matches;
         }
+        return matches;
     }
 
     Object applyBehaviour(Object[] arguments) {
@@ -104,16 +101,5 @@ class CallMatcher {
         } else {
             return new CallMatcher(this, newSimulationValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
         }
-    }
-
-    // TODO: move this to wildcard matcher?
-    private WildcardMatchingCallInterceptor prerecord(ParameterisedAction action, Class[] wildcardTypes) {
-        WildcardMatchingCallInterceptor wildcardMatcher = new WildcardMatchingCallInterceptor(wildcardTypes);
-        callRecorder.record(action, wildcardMatcher);
-        List<Integer> unusedWildcardIndices = wildcardMatcher.getUnusedWildcardIndices();
-        if (!unusedWildcardIndices.isEmpty()) {
-            throw new UnusedWildcardException(unusedWildcardIndices);
-        }
-        return wildcardMatcher;
     }
 }

@@ -1,5 +1,7 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
+import com.github.mvollebregt.chainedmocks.UnusedWildcardException;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +29,6 @@ class WildcardMatchingCallInterceptor implements CallInterceptor {
         return wildcards;
     }
 
-    WildcardMarkers getWildcardMarkers() {
-        return wildcardMarkers;
-    }
-
     @Override
     public List<MethodCall> getRecordedCalls() {
         return recordedCalls;
@@ -43,8 +41,15 @@ class WildcardMatchingCallInterceptor implements CallInterceptor {
         return returnValue;
     }
 
-    List<Integer> getUnusedWildcardIndices() {
-        return wildcardIndices.values().stream().sorted().collect(Collectors.toList());
+    WildcardMarkers getWildcardMarkers() {
+        return wildcardMarkers;
+    }
+
+    void verifyAllWildcardsMatched() {
+        if (!wildcardIndices.isEmpty()) {
+            List<Integer> unusedWildcardIndices = wildcardIndices.values().stream().sorted().collect(Collectors.toList());
+            throw new UnusedWildcardException(unusedWildcardIndices);
+        }
     }
 
     private void matchMethodArgumentsWithWildcards(Object[] arguments) {
