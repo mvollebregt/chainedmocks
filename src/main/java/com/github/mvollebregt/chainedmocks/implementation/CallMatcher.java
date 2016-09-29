@@ -4,10 +4,7 @@ import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -15,6 +12,7 @@ import java.util.stream.Stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
+// TODO: rewrite somewhat more
 class CallMatcher {
 
     private final ParameterisedAction action;
@@ -22,7 +20,8 @@ class CallMatcher {
     private final CallRecorder callRecorder;
     private final WildcardMarkers wildcardMarkers;
     private final List<MethodCall> remainingCalls;
-    private final SimulationValues simulationValues;
+    private final Object[] wildcards;
+    private final List<Object> returnValues;
     private final Map<MatchingValue, CallMatcher> submatches = new HashMap<>();
 
     CallMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
@@ -31,19 +30,21 @@ class CallMatcher {
         this.behaviour = behaviour;
         this.callRecorder = callRecorder;
         WildcardMatchingCallInterceptor wildcardMatcher = new WildcardMatchingCallInterceptor(wildcardTypes);
-        callRecorder.record(action, wildcardMatcher);
+        callRecorder.record(action, wildcardMatcher.getWildcards(), wildcardMatcher);
         wildcardMatcher.verifyAllWildcardsMatched();
         this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
         this.remainingCalls = wildcardMatcher.getRecordedCalls();
-        this.simulationValues = new SimulationValues(DefaultValueProvider.provideDefault(wildcardTypes), emptyList());
+        this.wildcards = DefaultValueProvider.provideDefault(wildcardTypes);
+        this.returnValues = emptyList();
     }
 
-    private CallMatcher(CallMatcher supermatch, SimulationValues simulationValues, List<MethodCall> remainingCalls) {
+    private CallMatcher(CallMatcher supermatch, Object[] wildcards, List<Object> returnValues, List<MethodCall> remainingCalls) {
         this.action = supermatch.action;
         this.behaviour = supermatch.behaviour;
         this.callRecorder = supermatch.callRecorder;
         this.wildcardMarkers = supermatch.wildcardMarkers;
-        this.simulationValues = simulationValues;
+        this.wildcards = wildcards;
+        this.returnValues = returnValues;
         this.remainingCalls = remainingCalls;
     }
 
@@ -57,11 +58,12 @@ class CallMatcher {
         Stream<Object[]> matches = submatches.values().stream().flatMap(submatch -> submatch.match(methodCall));
 
         if (matchesNextExpectedCall(target, method, arguments)) {
-            int methodCallIndex = simulationValues.getReturnValues().size();
+            int methodCallIndex = returnValues.size();
             MatchingValue matchingValue = new MatchingValue(method.getReturnType(), returnValue, wildcardMarkers.matchArguments(methodCallIndex, arguments));
 
             if (remainingCalls.size() == 1) {
-                matches = singletonList(simulationValues.extend(matchingValue).getWildcards()).stream();
+                Object[] newWildcards = extendWildcards(wildcards, matchingValue.getWildcards());
+                matches = singletonList(newWildcards).stream();
             } else {
                 if (!submatches.containsKey(matchingValue)) {
                     submatches.put(matchingValue, extend(matchingValue));
@@ -81,7 +83,7 @@ class CallMatcher {
     }
 
     private boolean matchesNextExpectedCall(Object target, Method method, Object[] arguments) {
-        int methodCallIndex = simulationValues.getReturnValues().size();
+        int methodCallIndex = returnValues.size();
         Set<Integer> argumentIndicesForWildcards = wildcardMarkers.getArgumentIndicesForWildcards(methodCallIndex);
         MethodCall nextExpectedCall = remainingCalls.get(0);
         return target.equals(nextExpectedCall.getTarget()) &&
@@ -93,13 +95,24 @@ class CallMatcher {
     }
 
     private CallMatcher extend(MatchingValue matchingValue) {
-        SimulationValues newSimulationValues = simulationValues.extend(matchingValue);
+        Object[] newWildcards = extendWildcards(wildcards, matchingValue.getWildcards());
+        List<Object> newReturnValues = new ArrayList<>(returnValues);
+        newReturnValues.add(matchingValue.getReturnValue());
         if (matchingValue.containsNewInformation()) {
-            List<MethodCall> recordedCalls = callRecorder.record(action, new SimulatingCallInterceptor(newSimulationValues));
-            List<MethodCall> newRemainingCalls = recordedCalls.stream().skip(newSimulationValues.getReturnValues().size()).collect(Collectors.toList());
-            return new CallMatcher(this, newSimulationValues, newRemainingCalls);
+            List<MethodCall> recordedCalls = callRecorder.record(action, newWildcards, new SimulatingCallInterceptor(newReturnValues));
+            List<MethodCall> newRemainingCalls = recordedCalls.stream().skip(newReturnValues.size()).collect(Collectors.toList());
+            return new CallMatcher(this, newWildcards, newReturnValues, newRemainingCalls);
         } else {
-            return new CallMatcher(this, newSimulationValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
+            return new CallMatcher(this, newWildcards, newReturnValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
         }
     }
+
+    // TODO: rewrite extending wildcards
+    private static Object[] extendWildcards(Object[] wildcards, Map<Integer, Object> wildcardAdditions) {
+        Object[] newWildcards = wildcardAdditions.isEmpty() ? wildcards : wildcards.clone();
+        wildcardAdditions.forEach((wildcardIndex, wildcard) -> newWildcards[wildcardIndex] = wildcard);
+        return newWildcards;
+    }
+
+
 }

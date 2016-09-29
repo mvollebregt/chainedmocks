@@ -24,8 +24,7 @@ class WildcardMatchingCallInterceptor implements CallInterceptor {
                 Collectors.toMap(i -> wildcards[i], Function.identity()));
     }
 
-    @Override
-    public Object[] getWildcards() {
+    Object[] getWildcards() {
         return wildcards;
     }
 

@@ -6,22 +6,17 @@ import java.util.List;
 
 class SimulatingCallInterceptor implements CallInterceptor {
 
-    private final SimulationValues simulationValues;
     private int returnValueCount = -1;
+    private final List<Object> returnValues;
     private final List<MethodCall> recordedCalls = new ArrayList<>();
 
-    SimulatingCallInterceptor(SimulationValues simulationValues) {
-        this.simulationValues = simulationValues;
+    SimulatingCallInterceptor(List<Object> returnValues) {
+        this.returnValues = returnValues;
     }
 
     @Override
     public List<MethodCall> getRecordedCalls() {
         return recordedCalls;
-    }
-
-    @Override
-    public Object[] getWildcards() {
-        return simulationValues.getWildcards();
     }
 
     @Override
@@ -33,8 +28,7 @@ class SimulatingCallInterceptor implements CallInterceptor {
 
     private Object getReturnValue(Class<?> returnType) {
         returnValueCount++;
-        return returnValueCount < simulationValues.getReturnValues().size() ?
-                simulationValues.getReturnValues().get(returnValueCount) : DefaultValueProvider.provideDefault(returnType);
+        return returnValueCount < returnValues.size() ?
+                returnValues.get(returnValueCount) : DefaultValueProvider.provideDefault(returnType);
     }
-
 }

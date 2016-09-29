@@ -7,8 +7,6 @@ interface CallInterceptor {
 
     List<MethodCall> getRecordedCalls();
 
-    Object[] getWildcards();
-
     Object intercept(Object target, Method method, Object[] arguments);
 
 }

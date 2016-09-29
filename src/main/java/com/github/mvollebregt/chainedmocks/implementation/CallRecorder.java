@@ -18,9 +18,9 @@ class CallRecorder {
         return currentInterceptor;
     }
 
-    List<MethodCall> record(ParameterisedAction action, CallInterceptor interceptor) {
+    List<MethodCall> record(ParameterisedAction action, Object[] wildcards, CallInterceptor interceptor) {
         this.currentInterceptor = interceptor;
-        action.accept(interceptor.getWildcards());
+        action.accept(wildcards);
         this.currentInterceptor = defaultInterceptor;
         return interceptor.getRecordedCalls();
     }

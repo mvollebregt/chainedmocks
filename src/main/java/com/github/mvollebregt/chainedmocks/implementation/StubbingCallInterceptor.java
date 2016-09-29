@@ -22,11 +22,6 @@ class StubbingCallInterceptor implements CallInterceptor {
     }
 
     @Override
-    public Object[] getWildcards() {
-        return new Object[0];
-    }
-
-    @Override
     public Object intercept(Object target, Method method, Object[] arguments) {
         Object defaultReturnValue = valueProvider.provide(method.getReturnType());
         Set<Object> matches = match(new MethodCall(target, method, arguments, defaultReturnValue));
