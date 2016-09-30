@@ -1,9 +1,9 @@
-package com.github.mvollebregt.chainedmocks.implementation;
+package com.github.mvollebregt.chainedmocks.implementation.base;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
-interface CallInterceptor {
+public interface CallInterceptor {
 
     List<MethodCall> getRecordedCalls();
 

@@ -1,6 +1,9 @@
-package com.github.mvollebregt.chainedmocks.implementation;
+package com.github.mvollebregt.chainedmocks.implementation.matching;
 
 import com.github.mvollebregt.chainedmocks.UnusedWildcardException;
+import com.github.mvollebregt.chainedmocks.implementation.base.CallInterceptor;
+import com.github.mvollebregt.chainedmocks.implementation.base.IncrementingValueProvider;
+import com.github.mvollebregt.chainedmocks.implementation.base.MethodCall;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

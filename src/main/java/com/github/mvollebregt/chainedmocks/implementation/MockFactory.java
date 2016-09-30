@@ -1,6 +1,5 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
-import com.github.mvollebregt.chainedmocks.ChainedMocks;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.bind.annotation.*;
@@ -31,7 +30,7 @@ public class MockFactory {
                 .method(isEquals()).intercept(to(EqualsInterceptor.class))
                 .method(isToString()).intercept(to(ToStringInterceptor.class))
                 .make()
-                .load(ChainedMocks.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
+                .load(MockFactory.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                 .getLoaded());
     }
 

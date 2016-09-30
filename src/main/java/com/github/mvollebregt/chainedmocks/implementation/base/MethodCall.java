@@ -1,36 +1,36 @@
-package com.github.mvollebregt.chainedmocks.implementation;
+package com.github.mvollebregt.chainedmocks.implementation.base;
 
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class MethodCall {
+public class MethodCall {
 
     private final Object target;
     private final Method method;
     private final Object[] arguments;
     private final Object returnValue;
 
-    MethodCall(Object target, Method method, Object[] arguments, Object returnValue) {
+    public MethodCall(Object target, Method method, Object[] arguments, Object returnValue) {
         this.target = target;
         this.method = method;
         this.arguments = arguments;
         this.returnValue = returnValue;
     }
 
-    Object getTarget() {
+    public Object getTarget() {
         return target;
     }
 
-    Method getMethod() {
+    public Method getMethod() {
         return method;
     }
 
-    Object[] getArguments() {
+    public Object[] getArguments() {
         return arguments;
     }
 
-    Object getReturnValue() {
+    public Object getReturnValue() {
         return returnValue;
     }
 

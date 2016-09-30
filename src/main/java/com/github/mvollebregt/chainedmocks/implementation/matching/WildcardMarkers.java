@@ -1,4 +1,4 @@
-package com.github.mvollebregt.chainedmocks.implementation;
+package com.github.mvollebregt.chainedmocks.implementation.matching;
 
 import java.util.*;
 import java.util.stream.Collectors;

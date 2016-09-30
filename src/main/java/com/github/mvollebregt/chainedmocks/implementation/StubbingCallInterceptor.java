@@ -3,6 +3,11 @@ package com.github.mvollebregt.chainedmocks.implementation;
 import com.github.mvollebregt.chainedmocks.AmbiguousExpectationsException;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
+import com.github.mvollebregt.chainedmocks.implementation.base.CallInterceptor;
+import com.github.mvollebregt.chainedmocks.implementation.base.CallRecorder;
+import com.github.mvollebregt.chainedmocks.implementation.base.IncrementingValueProvider;
+import com.github.mvollebregt.chainedmocks.implementation.base.MethodCall;
+import com.github.mvollebregt.chainedmocks.implementation.matching.CallMatcher;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -39,6 +44,6 @@ class StubbingCallInterceptor implements CallInterceptor {
     }
 
     private Set<Object> match(MethodCall methodCall) {
-        return matchers.stream().flatMap(callSequence -> callSequence.match(methodCall).map(callSequence::applyBehaviour)).collect(Collectors.toSet());
+        return matchers.stream().flatMap(callMatcher -> callMatcher.match(methodCall).map(callMatcher::applyBehaviour)).collect(Collectors.toSet());
     }
 }

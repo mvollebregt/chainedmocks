@@ -2,6 +2,9 @@ package com.github.mvollebregt.chainedmocks.implementation;
 
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
+import com.github.mvollebregt.chainedmocks.implementation.base.CallInterceptor;
+import com.github.mvollebregt.chainedmocks.implementation.base.CallRecorder;
+import com.github.mvollebregt.chainedmocks.implementation.matching.CallMatcher;
 
 public class MockContext {
 

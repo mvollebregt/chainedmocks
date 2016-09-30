@@ -1,11 +1,11 @@
-package com.github.mvollebregt.chainedmocks.implementation;
+package com.github.mvollebregt.chainedmocks.implementation.base;
 
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
 import java.util.stream.Stream;
 
-class IncrementingValueProvider {
+public class IncrementingValueProvider {
 
     private static final long INITIAL_SEED = 19760713;
 
@@ -13,11 +13,11 @@ class IncrementingValueProvider {
 
     private long seed;
 
-    IncrementingValueProvider() {
+    public IncrementingValueProvider() {
         this.seed = INITIAL_SEED;
     }
 
-    Object provide(Class type) {
+    public Object provide(Class type) {
         seed += 27;
         if (type.equals(Byte.TYPE)) {
             return (byte) seed;
@@ -44,7 +44,7 @@ class IncrementingValueProvider {
         }
     }
 
-    Object[] provide(Class[] wildcardTypes) {
+    public Object[] provide(Class[] wildcardTypes) {
         return Stream.of(wildcardTypes).map(this::provide).toArray();
     }
 }

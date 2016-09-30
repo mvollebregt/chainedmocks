@@ -1,7 +1,9 @@
-package com.github.mvollebregt.chainedmocks.implementation;
+package com.github.mvollebregt.chainedmocks.implementation.matching;
 
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
+import com.github.mvollebregt.chainedmocks.implementation.base.CallRecorder;
+import com.github.mvollebregt.chainedmocks.implementation.base.MethodCall;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 // TODO: rewrite somewhat more
-class CallMatcher {
+public class CallMatcher {
 
     private final ParameterisedAction action;
     private final ParameterisedFunction behaviour;
@@ -30,8 +32,8 @@ class CallMatcher {
     private final Set<MatchingValue> alreadyMatched = new HashSet<>();
     private final List<CallMatcher> continuedMatches = new ArrayList<>();
 
-    CallMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
-                CallRecorder callRecorder) {
+    public CallMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
+                       CallRecorder callRecorder) {
         this.action = action;
         this.behaviour = behaviour;
         this.callRecorder = callRecorder;
@@ -54,7 +56,7 @@ class CallMatcher {
         this.remainingCalls = remainingCalls;
     }
 
-    Stream<Object[]> match(MethodCall methodCall) {
+    public Stream<Object[]> match(MethodCall methodCall) {
 
         Object target = methodCall.getTarget();
         Method method = methodCall.getMethod();
@@ -79,11 +81,11 @@ class CallMatcher {
         return matches;
     }
 
-    Object applyBehaviour(Object[] arguments) {
+    public Object applyBehaviour(Object[] arguments) {
         return behaviour.apply(arguments);
     }
 
-    boolean matches(List<MethodCall> actualCalls) {
+    public boolean matches(List<MethodCall> actualCalls) {
         return actualCalls.stream().reduce(false, (alreadyMatched, methodCall) -> alreadyMatched ||
                 match(methodCall).findAny().isPresent(), Boolean::logicalOr);
     }
