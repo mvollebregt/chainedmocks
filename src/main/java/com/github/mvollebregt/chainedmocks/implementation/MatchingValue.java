@@ -1,13 +1,11 @@
 package com.github.mvollebregt.chainedmocks.implementation;
 
-import java.util.Map;
-
 class MatchingValue {
 
     private final Object returnValue;
-    private final Map<Integer, Object> wildcards;
+    private final WildcardValues wildcards;
 
-    MatchingValue(Object returnValue, Map<Integer, Object> wildcards) {
+    MatchingValue(Object returnValue, WildcardValues wildcards) {
         this.returnValue = returnValue;
         this.wildcards = wildcards;
     }

@@ -4,7 +4,10 @@ import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -20,7 +23,7 @@ class CallMatcher {
     private final CallRecorder callRecorder;
     private final WildcardMarkers wildcardMarkers;
 
-    private final Object[] wildcards;
+    private final WildcardValues wildcards;
     private final List<Object> returnValues;
 
     private final List<MethodCall> remainingCalls;
@@ -37,11 +40,11 @@ class CallMatcher {
         wildcardMatcher.verifyAllWildcardsMatched();
         this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
         this.remainingCalls = wildcardMatcher.getRecordedCalls();
-        this.wildcards = DefaultValueProvider.provideDefault(wildcardTypes);
+        this.wildcards = new WildcardValues(DefaultValueProvider.provideDefault(wildcardTypes));
         this.returnValues = emptyList();
     }
 
-    private CallMatcher(CallMatcher supermatch, Object[] wildcards, List<Object> returnValues, List<MethodCall> remainingCalls) {
+    private CallMatcher(CallMatcher supermatch, WildcardValues wildcards, List<Object> returnValues, List<MethodCall> remainingCalls) {
         this.action = supermatch.action;
         this.behaviour = supermatch.behaviour;
         this.callRecorder = supermatch.callRecorder;
@@ -62,11 +65,11 @@ class CallMatcher {
 
         if (matchesNextExpectedCall(target, method, arguments)) {
             int methodCallIndex = returnValues.size();
-            Map<Integer, Object> matchedWildcards = wildcardMarkers.matchArguments(methodCallIndex, arguments);
+            WildcardValues matchedWildcards = wildcardMarkers.matchArguments(methodCallIndex, arguments);
 
             if (remainingCalls.size() == 1) {
-                Object[] newWildcards = extendWildcards(this.wildcards, matchedWildcards);
-                matches = singletonList(newWildcards).stream();
+                WildcardValues newWildcards = new WildcardValues(this.wildcards, matchedWildcards);
+                matches = singletonList(newWildcards.toObjectArray()).stream();
             } else {
                 if (alreadyMatched.add(new MatchingValue(returnValue, matchedWildcards))) {
                     continuedMatches.add(extend(returnValue, matchedWildcards));
@@ -97,23 +100,16 @@ class CallMatcher {
                                 arguments[argumentIndex].equals(nextExpectedCall.getArguments()[argumentIndex]));
     }
 
-    private CallMatcher extend(Object returnValue, Map<Integer, Object> addedWildcards) {
-        Object[] newWildcards = extendWildcards(wildcards, addedWildcards);
+    private CallMatcher extend(Object returnValue, WildcardValues addedWildcards) {
         List<Object> newReturnValues = new ArrayList<>(returnValues);
         newReturnValues.add(returnValue);
         if (remainingCalls.get(0).getMethod().getReturnType().equals(Void.TYPE) && addedWildcards.isEmpty()) {
-            return new CallMatcher(this, newWildcards, newReturnValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
+            return new CallMatcher(this, wildcards, newReturnValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
         } else {
-            List<MethodCall> recordedCalls = callRecorder.record(action, newWildcards, new SimulatingCallInterceptor(newReturnValues));
+            WildcardValues newWildcards = new WildcardValues(wildcards, addedWildcards);
+            List<MethodCall> recordedCalls = callRecorder.record(action, newWildcards.toObjectArray(), new SimulatingCallInterceptor(newReturnValues));
             List<MethodCall> newRemainingCalls = recordedCalls.stream().skip(newReturnValues.size()).collect(Collectors.toList());
             return new CallMatcher(this, newWildcards, newReturnValues, newRemainingCalls);
         }
-    }
-
-    // TODO: rewrite extending wildcards
-    private static Object[] extendWildcards(Object[] wildcards, Map<Integer, Object> wildcardAdditions) {
-        Object[] newWildcards = wildcardAdditions.isEmpty() ? wildcards : wildcards.clone();
-        wildcardAdditions.forEach((wildcardIndex, wildcard) -> newWildcards[wildcardIndex] = wildcard);
-        return newWildcards;
     }
 }

@@ -3,7 +3,6 @@ package com.github.mvollebregt.chainedmocks.implementation;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 
 class WildcardMarkers {
@@ -28,13 +27,13 @@ class WildcardMarkers {
         }
     }
 
-    Map<Integer, Object> matchArguments(int methodCallIndex, Object[] arguments) {
+    WildcardValues matchArguments(int methodCallIndex, Object[] arguments) {
         List<WildcardMarker> markers = wildcardMarkers.get(methodCallIndex);
         if (markers != null) {
-            return markers.stream().collect(Collectors.toMap(WildcardMarker::getWildcardIndex, marker ->
-                    arguments[marker.getArgumentIndex()]));
+            return new WildcardValues(markers.stream().collect(Collectors.toMap(
+                    WildcardMarker::getWildcardIndex, marker -> arguments[marker.getArgumentIndex()])));
         } else {
-            return emptyMap();
+            return new WildcardValues();
         }
     }
 
