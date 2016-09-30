@@ -4,26 +4,12 @@ import java.util.Map;
 
 class MatchingValue {
 
-    private final boolean notVoid;
     private final Object returnValue;
     private final Map<Integer, Object> wildcards;
 
-    MatchingValue(Class<?> returnType, Object returnValue, Map<Integer, Object> wildcards) {
-        this.notVoid = !returnType.equals(Void.TYPE);
+    MatchingValue(Object returnValue, Map<Integer, Object> wildcards) {
         this.returnValue = returnValue;
         this.wildcards = wildcards;
-    }
-
-    Object getReturnValue() {
-        return returnValue;
-    }
-
-    Map<Integer, Object> getWildcards() {
-        return wildcards;
-    }
-
-    boolean containsNewInformation() {
-        return notVoid || !wildcards.isEmpty();
     }
 
     @Override
