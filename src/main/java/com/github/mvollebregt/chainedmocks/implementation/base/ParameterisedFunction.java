@@ -1,4 +1,4 @@
-package com.github.mvollebregt.chainedmocks.function;
+package com.github.mvollebregt.chainedmocks.implementation.base;
 
 import java.util.function.Function;
 

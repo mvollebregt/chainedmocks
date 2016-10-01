@@ -1,9 +1,9 @@
 package com.github.mvollebregt.chainedmocks.implementation.matching;
 
-import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
-import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 import com.github.mvollebregt.chainedmocks.implementation.base.CallRecorder;
 import com.github.mvollebregt.chainedmocks.implementation.base.MethodCall;
+import com.github.mvollebregt.chainedmocks.implementation.base.ParameterisedAction;
+import com.github.mvollebregt.chainedmocks.implementation.base.ParameterisedFunction;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
