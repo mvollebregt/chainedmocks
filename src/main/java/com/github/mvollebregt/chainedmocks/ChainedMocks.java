@@ -2,6 +2,7 @@ package com.github.mvollebregt.chainedmocks;
 
 import com.github.mvollebregt.chainedmocks.fluentinterface.When;
 import com.github.mvollebregt.chainedmocks.fluentinterface.WhenA;
+import com.github.mvollebregt.chainedmocks.fluentinterface.WhenAB;
 import com.github.mvollebregt.chainedmocks.fluentinterface.WhenR;
 import com.github.mvollebregt.chainedmocks.function.Action;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
@@ -10,6 +11,7 @@ import net.bytebuddy.ByteBuddy;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -37,12 +39,20 @@ public class ChainedMocks {
         return new WhenA<>(expectedCalls, a);
     }
 
+    public static <A, B> WhenAB<A, B> when(BiConsumer<A, B> expectedCalls, Class<A> a, Class<B> b) {
+        return new WhenAB<>(expectedCalls, a, b);
+    }
+
     public static void verify(Action expectedCalls) {
         verify(ParameterisedAction.from(expectedCalls));
     }
 
     public static <A> void verify(Consumer<A> expectedCalls, Class<A> a) {
         verify(ParameterisedAction.from(expectedCalls), a);
+    }
+
+    public static <A, B> void verify(BiConsumer<A, B> expectedCalls, Class<A> a, Class<B> b) {
+        verify(ParameterisedAction.from(expectedCalls), a, b);
     }
 
     private static void verify(ParameterisedAction parameterisedAction, Class... wildcardTypes) {

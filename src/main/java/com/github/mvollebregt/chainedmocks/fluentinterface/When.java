@@ -4,17 +4,13 @@ import com.github.mvollebregt.chainedmocks.function.Action;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 
-import static com.github.mvollebregt.chainedmocks.implementation.MockContext.getMockContext;
-
-public class When {
-
-    private final Action expectedCalls;
+public class When extends GenericWhen {
 
     public When(Action expectedCalls) {
-        this.expectedCalls = expectedCalls;
+        super(ParameterisedAction.from(expectedCalls));
     }
 
     public void then(Action behaviour) {
-        getMockContext().stub(ParameterisedAction.from(expectedCalls), ParameterisedFunction.from(behaviour));
+        then(ParameterisedFunction.from(behaviour));
     }
 }

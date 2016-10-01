@@ -1,5 +1,6 @@
 package com.github.mvollebregt.chainedmocks.function;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -15,7 +16,11 @@ public interface ParameterisedAction extends Consumer<Object[]> {
         return params -> expectedCalls.accept(params[0]);
     }
 
+    static ParameterisedAction from(BiConsumer expectedCalls) {
+        return params -> expectedCalls.accept(params[0], params[1]);
+    }
     static ParameterisedAction from(Supplier expectedCalls) {
         return params -> expectedCalls.get();
     }
+
 }

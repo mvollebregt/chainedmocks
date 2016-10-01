@@ -1,5 +1,6 @@
 package com.github.mvollebregt.chainedmocks.function;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -18,6 +19,13 @@ public interface ParameterisedFunction extends Function<Object[], Object> {
     static ParameterisedFunction from(Consumer behaviour) {
         return params -> {
             behaviour.accept(params[0]);
+            return null;
+        };
+    }
+
+    static ParameterisedFunction from(BiConsumer behaviour) {
+        return params -> {
+            behaviour.accept(params[0], params[1]);
             return null;
         };
     }
