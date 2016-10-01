@@ -82,12 +82,4 @@ public class WildcardsTest {
         // then
         assertEquals("call sequence called", status);
     }
-
-    // TODO: implement with clause
-    // TODO: write a README
-    // TODO: throw exception if using boolean or enum wildcards
-    // TODO: use deep clones of wild cards / return values when recording -> the expected call function might alter them?
-    // TODO: when finding wildcards, use == for comparing objects instead of equals -> equals may be overriden and return true
-    // TODO: make lots of test cases
-    // TODO: throw exceptions with better messages and more diagnostic information
 }

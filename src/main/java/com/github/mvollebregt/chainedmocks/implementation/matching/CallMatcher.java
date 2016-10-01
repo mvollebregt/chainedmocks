@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-// TODO: rewrite somewhat more
 public class CallMatcher {
 
     private final ParameterisedAction action;
@@ -29,8 +28,8 @@ public class CallMatcher {
     private final List<Object> returnValues;
 
     private final List<MethodCall> remainingCalls;
-    private final Set<MatchingValue> alreadyMatched = new HashSet<>();
-    private final List<CallMatcher> continuedMatches = new ArrayList<>();
+    private final Set<MatchedValue> alreadyMatched = new HashSet<>();
+    private final List<CallMatcher> followingMatchers = new ArrayList<>();
 
     public CallMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
                        CallRecorder callRecorder) {
@@ -46,48 +45,48 @@ public class CallMatcher {
         this.returnValues = emptyList();
     }
 
-    private CallMatcher(CallMatcher supermatch, WildcardValues wildcards, List<Object> returnValues, List<MethodCall> remainingCalls) {
-        this.action = supermatch.action;
-        this.behaviour = supermatch.behaviour;
-        this.callRecorder = supermatch.callRecorder;
-        this.wildcardMarkers = supermatch.wildcardMarkers;
-        this.wildcards = wildcards;
-        this.returnValues = returnValues;
-        this.remainingCalls = remainingCalls;
-    }
-
-    public Stream<Object[]> match(MethodCall methodCall) {
-
-        Object target = methodCall.getTarget();
-        Method method = methodCall.getMethod();
-        Object[] arguments = methodCall.getArguments();
-        Object returnValue = methodCall.getReturnValue();
-
-        Stream<Object[]> matches = continuedMatches.stream().flatMap(submatch -> submatch.match(methodCall));
-
-        if (matchesNextExpectedCall(target, method, arguments)) {
-            int methodCallIndex = returnValues.size();
-            WildcardValues matchedWildcards = wildcardMarkers.matchArguments(methodCallIndex, arguments);
-
-            if (remainingCalls.size() == 1) {
-                WildcardValues newWildcards = new WildcardValues(this.wildcards, matchedWildcards);
-                matches = singletonList(newWildcards.toObjectArray()).stream();
-            } else {
-                if (alreadyMatched.add(new MatchingValue(returnValue, matchedWildcards))) {
-                    continuedMatches.add(extend(returnValue, matchedWildcards));
-                }
-            }
+    private CallMatcher(CallMatcher precedingMatcher, Object returnValue, WildcardValues addedWildcards) {
+        this.action = precedingMatcher.action;
+        this.behaviour = precedingMatcher.behaviour;
+        this.callRecorder = precedingMatcher.callRecorder;
+        this.wildcardMarkers = precedingMatcher.wildcardMarkers;
+        this.wildcards = precedingMatcher.wildcards.plus(addedWildcards);
+        this.returnValues = Stream.concat(precedingMatcher.returnValues.stream(), Stream.of(returnValue)).collect(Collectors.toList());
+        if (precedingMatcher.remainingCalls.get(0).getMethod().getReturnType().equals(Void.TYPE) && addedWildcards.isEmpty()) {
+            remainingCalls = precedingMatcher.remainingCalls.stream().skip(1).collect(Collectors.toList());
+        } else {
+            List<MethodCall> recordedCalls = callRecorder.record(action, wildcards.toObjectArray(), new SimulatingCallInterceptor(returnValues));
+            this.remainingCalls = recordedCalls.stream().skip(returnValues.size()).collect(Collectors.toList());
         }
-        return matches;
     }
 
     public Object applyBehaviour(Object[] arguments) {
         return behaviour.apply(arguments);
     }
 
+
     public boolean matches(List<MethodCall> actualCalls) {
         return actualCalls.stream().reduce(false, (alreadyMatched, methodCall) -> alreadyMatched ||
                 match(methodCall).findAny().isPresent(), Boolean::logicalOr);
+    }
+
+    public Stream<Object[]> match(MethodCall methodCall) {
+
+        Stream<Object[]> matches = followingMatchers.stream().flatMap(followingMatch -> followingMatch.match(methodCall));
+
+        if (matchesNextExpectedCall(methodCall.getTarget(), methodCall.getMethod(), methodCall.getArguments())) {
+            int methodCallIndex = returnValues.size();
+            WildcardValues extraWildcards = wildcardMarkers.matchArguments(methodCallIndex, methodCall.getArguments());
+
+            if (remainingCalls.size() == 1) {
+                matches = singletonList(this.wildcards.plus(extraWildcards).toObjectArray()).stream();
+            } else {
+                if (alreadyMatched.add(new MatchedValue(methodCall.getReturnValue(), extraWildcards))) {
+                    followingMatchers.add(new CallMatcher(this, methodCall.getReturnValue(), extraWildcards));
+                }
+            }
+        }
+        return matches;
     }
 
     private boolean matchesNextExpectedCall(Object target, Method method, Object[] arguments) {
@@ -100,18 +99,5 @@ public class CallMatcher {
                         filter(argumentIndex -> !argumentIndicesForWildcards.contains(argumentIndex)).
                         allMatch(argumentIndex ->
                                 arguments[argumentIndex].equals(nextExpectedCall.getArguments()[argumentIndex]));
-    }
-
-    private CallMatcher extend(Object returnValue, WildcardValues addedWildcards) {
-        List<Object> newReturnValues = new ArrayList<>(returnValues);
-        newReturnValues.add(returnValue);
-        if (remainingCalls.get(0).getMethod().getReturnType().equals(Void.TYPE) && addedWildcards.isEmpty()) {
-            return new CallMatcher(this, wildcards, newReturnValues, remainingCalls.stream().skip(1).collect(Collectors.toList()));
-        } else {
-            WildcardValues newWildcards = new WildcardValues(wildcards, addedWildcards);
-            List<MethodCall> recordedCalls = callRecorder.record(action, newWildcards.toObjectArray(), new SimulatingCallInterceptor(newReturnValues));
-            List<MethodCall> newRemainingCalls = recordedCalls.stream().skip(newReturnValues.size()).collect(Collectors.toList());
-            return new CallMatcher(this, newWildcards, newReturnValues, newRemainingCalls);
-        }
     }
 }

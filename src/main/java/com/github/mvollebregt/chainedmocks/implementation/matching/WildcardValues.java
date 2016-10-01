@@ -19,12 +19,18 @@ class WildcardValues {
                 collect(Collectors.toMap(Function.identity(), index -> values[index])));
     }
 
-    WildcardValues(WildcardValues first, WildcardValues second) {
-        this(merge(first.values, second.values));
-    }
-
     WildcardValues(Map<Integer, Object> values) {
         this.values = values;
+    }
+
+    WildcardValues plus(WildcardValues other) {
+        if (other.values.isEmpty()) {
+            return this;
+        } else {
+            Map<Integer, Object> newMap = new HashMap<>(this.values);
+            other.values.forEach(newMap::put);
+            return new WildcardValues(newMap);
+        }
     }
 
     boolean isEmpty() {
@@ -33,12 +39,6 @@ class WildcardValues {
 
     Object[] toObjectArray() {
         return IntStream.range(0, values.size()).boxed().map(values::get).collect(Collectors.toList()).toArray();
-    }
-
-    private static Map<Integer, Object> merge(Map<Integer, Object> first, Map<Integer, Object> second) {
-        Map<Integer, Object> newMap = new HashMap<>(first);
-        second.forEach(newMap::put);
-        return newMap;
     }
 
     @Override
