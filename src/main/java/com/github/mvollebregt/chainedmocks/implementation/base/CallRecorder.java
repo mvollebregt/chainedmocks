@@ -1,5 +1,7 @@
 package com.github.mvollebregt.chainedmocks.implementation.base;
 
+import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
+
 import java.util.List;
 
 public class CallRecorder {

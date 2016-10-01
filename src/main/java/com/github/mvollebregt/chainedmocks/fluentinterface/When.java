@@ -1,6 +1,8 @@
 package com.github.mvollebregt.chainedmocks.fluentinterface;
 
 import com.github.mvollebregt.chainedmocks.function.Action;
+import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
+import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
 
 import static com.github.mvollebregt.chainedmocks.implementation.MockContext.getMockContext;
 
@@ -13,11 +15,6 @@ public class When {
     }
 
     public void then(Action behaviour) {
-        getMockContext().stub(
-                params -> expectedCalls.execute(),
-                params -> {
-                    behaviour.execute();
-                    return null;
-                });
+        getMockContext().stub(ParameterisedAction.from(expectedCalls), ParameterisedFunction.from(behaviour));
     }
 }

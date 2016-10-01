@@ -1,5 +1,8 @@
 package com.github.mvollebregt.chainedmocks.fluentinterface;
 
+import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
+import com.github.mvollebregt.chainedmocks.function.ParameterisedFunction;
+
 import java.util.function.Consumer;
 
 import static com.github.mvollebregt.chainedmocks.implementation.MockContext.getMockContext;
@@ -14,14 +17,7 @@ public class WhenA<A> {
         this.classes = new Class[]{a};
     }
 
-    @SuppressWarnings("unchecked")
     public void then(Consumer<A> behaviour) {
-        getMockContext().stub(
-                params -> expectedCalls.accept((A) params[0]),
-                params -> {
-                    behaviour.accept((A) params[0]);
-                    return null;
-                },
-                classes);
+        getMockContext().stub(ParameterisedAction.from(expectedCalls), ParameterisedFunction.from(behaviour), classes);
     }
 }

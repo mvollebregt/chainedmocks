@@ -4,6 +4,7 @@ import com.github.mvollebregt.chainedmocks.fluentinterface.When;
 import com.github.mvollebregt.chainedmocks.fluentinterface.WhenA;
 import com.github.mvollebregt.chainedmocks.fluentinterface.WhenR;
 import com.github.mvollebregt.chainedmocks.function.Action;
+import com.github.mvollebregt.chainedmocks.function.ParameterisedAction;
 import com.github.mvollebregt.chainedmocks.implementation.MockFactory;
 import net.bytebuddy.ByteBuddy;
 import org.objenesis.Objenesis;
@@ -37,7 +38,15 @@ public class ChainedMocks {
     }
 
     public static void verify(Action expectedCalls) {
-        if (!getMockContext().verify(params -> expectedCalls.execute())) {
+        verify(ParameterisedAction.from(expectedCalls));
+    }
+
+    public static <A> void verify(Consumer<A> expectedCalls, Class<A> a) {
+        verify(ParameterisedAction.from(expectedCalls), a);
+    }
+
+    private static void verify(ParameterisedAction parameterisedAction, Class... wildcardTypes) {
+        if (!getMockContext().verify(parameterisedAction, wildcardTypes)) {
             throw new VerificationException();
         }
     }
