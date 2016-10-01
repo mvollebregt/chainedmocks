@@ -2,6 +2,7 @@ package com.github.mvollebregt.chainedmocks.testhelpers;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SuppressWarnings({"SameReturnValue", "UnusedParameters"})
 public class ClassToBeMocked {
 
     public void action() {

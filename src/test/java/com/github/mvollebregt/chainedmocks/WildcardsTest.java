@@ -8,6 +8,7 @@ import static com.github.mvollebregt.chainedmocks.ChainedMocks.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.expectThrows;
 
+@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 public class WildcardsTest {
 
     private final ClassToBeMocked mock = mock(ClassToBeMocked.class);

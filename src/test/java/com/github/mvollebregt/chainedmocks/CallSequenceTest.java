@@ -8,6 +8,7 @@ import static com.github.mvollebregt.chainedmocks.ChainedMocks.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.expectThrows;
 
+@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 public class CallSequenceTest {
 
     private String status = "mock not called";

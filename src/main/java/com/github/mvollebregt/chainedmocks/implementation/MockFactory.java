@@ -34,26 +34,34 @@ public class MockFactory {
                 .getLoaded());
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class MockMethodInterceptor {
+        @SuppressWarnings("unused")
         @RuntimeType
         public static Object intercept(@This Object target, @Origin Method method, @AllArguments Object[] arguments) {
             return getMockContext().getCurrentInterceptor().intercept(target, method, arguments);
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class HashCodeInterceptor {
+        @SuppressWarnings("unused")
         public static int intercept(@This Object target) {
             return System.identityHashCode(target);
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class EqualsInterceptor {
+        @SuppressWarnings("unused")
         public static boolean intercept(@This Object target, @Argument(0) Object other) {
             return target == other;
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class ToStringInterceptor {
+        @SuppressWarnings("unused")
         public static String intercept(@This Object target) {
             return String.format("%s@%s", target.getClass().getSimpleName(), System.identityHashCode(target));
         }
