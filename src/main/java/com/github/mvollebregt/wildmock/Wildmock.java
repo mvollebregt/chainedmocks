@@ -56,8 +56,9 @@ public class Wildmock {
         verify(ParameterisedAction.from(expectedCalls));
     }
 
-    public static <A> void verify(FunctionA<A> expectedCalls, Class<A> a) {
+    public static <A> VerifyA<A> verify(FunctionA<A> expectedCalls, Class<A> a) {
         verify(ParameterisedAction.from(expectedCalls), a);
+        return new VerifyA<>(expectedCalls, a);
     }
 
     public static <A, B> void verify(FunctionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
@@ -68,8 +69,9 @@ public class Wildmock {
         verify(ParameterisedAction.from(expectedCalls), a, b, c);
     }
 
-    private static void verify(ParameterisedAction parameterisedAction, Class... wildcardTypes) {
-        if (!getMockContext().verify(parameterisedAction, wildcardTypes)) {
+    private static void verify(ParameterisedAction parameterisedAction,
+                               Class... wildcardTypes) {
+        if (!getMockContext().verify(parameterisedAction, arguments -> true, wildcardTypes)) {
             throw new VerificationException();
         }
     }

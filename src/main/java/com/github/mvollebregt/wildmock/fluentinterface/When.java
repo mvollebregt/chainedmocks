@@ -10,6 +10,7 @@ public class When {
 
     private final Class[] classes;
     private final ParameterisedAction expectedCalls;
+    private ParameterisedFunction predicate = arguments -> true;
 
     public When(FunctionX expectedCalls) {
         this(ParameterisedAction.from(expectedCalls));
@@ -24,8 +25,13 @@ public class When {
         then(ParameterisedFunction.from(behaviour));
     }
 
+    void setPredicate(ParameterisedFunction<Boolean> predicate) {
+        this.predicate = predicate;
+    }
+
+    @SuppressWarnings("unchecked")
     void then(ParameterisedFunction behaviour) {
-        getMockContext().stub(expectedCalls, behaviour, classes);
+        getMockContext().stub(expectedCalls, predicate, behaviour, classes);
     }
 
 }

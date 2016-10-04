@@ -2,9 +2,9 @@ package com.github.mvollebregt.wildmock.function;
 
 @FunctionalInterface
 @SuppressWarnings("unchecked")
-public interface ParameterisedFunction {
+public interface ParameterisedFunction<R> {
 
-    Object apply(Object[] arguments);
+    R apply(Object[] arguments);
 
     static ParameterisedFunction from(FunctionX behaviour) {
         return params -> {

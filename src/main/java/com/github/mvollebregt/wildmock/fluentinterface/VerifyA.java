@@ -5,19 +5,13 @@ import com.github.mvollebregt.wildmock.function.FunctionAR;
 import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
-public class WhenA<A> extends When {
+public class VerifyA<A> extends Verify {
 
-    public WhenA(FunctionA<A> expectedCalls, Class<A> a) {
+    public VerifyA(FunctionA<A> expectedCalls, Class<A> a) {
         super(ParameterisedAction.from(expectedCalls), a);
     }
 
-    @SuppressWarnings("unchecked")
-    public WhenA<A> with(FunctionAR<A, Boolean> predicate) {
-        setPredicate(ParameterisedFunction.from(predicate));
-        return this;
-    }
-
-    public void then(FunctionA<A> behaviour) {
-        then(ParameterisedFunction.from(behaviour));
+    public void with(FunctionAR<A, Boolean> predicate) {
+        super.with(ParameterisedFunction.from(predicate));
     }
 }

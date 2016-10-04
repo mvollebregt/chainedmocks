@@ -38,12 +38,13 @@ class StubbingCallInterceptor implements CallInterceptor {
         return returnValue;
     }
 
-    void addStub(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
-                 CallRecorder callRecorderSwitcher) {
-        matchers.add(new CallMatcher(action, behaviour, wildcardTypes, callRecorderSwitcher));
+    void addStub(ParameterisedAction action, ParameterisedFunction<Boolean> predicate, ParameterisedFunction behaviour,
+                 Class[] wildcardTypes, CallRecorder callRecorderSwitcher) {
+        matchers.add(new CallMatcher(action, predicate, behaviour, wildcardTypes, callRecorderSwitcher));
     }
 
     private Set<Object> match(MethodCall methodCall) {
-        return matchers.stream().flatMap(callMatcher -> callMatcher.match(methodCall).map(callMatcher::applyBehaviour)).collect(Collectors.toSet());
+        return matchers.stream().flatMap(callMatcher -> callMatcher.match(methodCall).map(callMatcher::applyBehaviour)).
+                collect(Collectors.toSet());
     }
 }

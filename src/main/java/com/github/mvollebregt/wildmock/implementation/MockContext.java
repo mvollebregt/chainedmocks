@@ -17,12 +17,13 @@ public class MockContext {
         return mockContext;
     }
 
-    public void stub(ParameterisedAction action, ParameterisedFunction behaviour, Class... wildcardTypes) {
-        actualCallInterceptor.addStub(action, behaviour, wildcardTypes, callRecorder);
+    public void stub(ParameterisedAction action, ParameterisedFunction<Boolean> predicate,
+                     ParameterisedFunction behaviour, Class... wildcardTypes) {
+        actualCallInterceptor.addStub(action, predicate, behaviour, wildcardTypes, callRecorder);
     }
 
-    public boolean verify(ParameterisedAction action, Class... wildcardTypes) {
-        return new CallMatcher(action, null, wildcardTypes, callRecorder).matches(actualCallInterceptor.getRecordedCalls());
+    public boolean verify(ParameterisedAction action, ParameterisedFunction<Boolean> predicate, Class... wildcardTypes) {
+        return new CallMatcher(action, predicate, null, wildcardTypes, callRecorder).matches(actualCallInterceptor.getRecordedCalls());
     }
 
     CallInterceptor getCurrentInterceptor() {

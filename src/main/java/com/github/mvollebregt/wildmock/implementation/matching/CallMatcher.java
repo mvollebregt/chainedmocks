@@ -20,6 +20,7 @@ import static java.util.Collections.singletonList;
 public class CallMatcher {
 
     private final ParameterisedAction action;
+    private final ParameterisedFunction<Boolean> predicate;
     private final ParameterisedFunction behaviour;
     private final CallRecorder callRecorder;
     private final WildcardMarkers wildcardMarkers;
@@ -31,9 +32,11 @@ public class CallMatcher {
     private final Set<MatchedValue> alreadyMatched = new HashSet<>();
     private final List<CallMatcher> followingMatchers = new ArrayList<>();
 
-    public CallMatcher(ParameterisedAction action, ParameterisedFunction behaviour, Class[] wildcardTypes,
-                       CallRecorder callRecorder) {
+
+    public CallMatcher(ParameterisedAction action, ParameterisedFunction<Boolean> predicate,
+                       ParameterisedFunction behaviour, Class[] wildcardTypes, CallRecorder callRecorder) {
         this.action = action;
+        this.predicate = predicate;
         this.behaviour = behaviour;
         this.callRecorder = callRecorder;
         WildcardMatchingCallInterceptor wildcardMatcher = new WildcardMatchingCallInterceptor(wildcardTypes);
@@ -47,6 +50,7 @@ public class CallMatcher {
 
     private CallMatcher(CallMatcher precedingMatcher, Object returnValue, WildcardValues addedWildcards) {
         this.action = precedingMatcher.action;
+        this.predicate = precedingMatcher.predicate;
         this.behaviour = precedingMatcher.behaviour;
         this.callRecorder = precedingMatcher.callRecorder;
         this.wildcardMarkers = precedingMatcher.wildcardMarkers;
@@ -72,14 +76,18 @@ public class CallMatcher {
 
     public Stream<Object[]> match(MethodCall methodCall) {
 
-        Stream<Object[]> matches = followingMatchers.stream().flatMap(followingMatch -> followingMatch.match(methodCall));
+        Stream<Object[]> matches = followingMatchers.stream().
+                flatMap(followingMatch -> followingMatch.match(methodCall));
 
         if (matchesNextExpectedCall(methodCall.getTarget(), methodCall.getMethod(), methodCall.getArguments())) {
             int methodCallIndex = returnValues.size();
             WildcardValues extraWildcards = wildcardMarkers.matchArguments(methodCallIndex, methodCall.getArguments());
 
             if (remainingCalls.size() == 1) {
-                matches = singletonList(this.wildcards.plus(extraWildcards).toObjectArray()).stream();
+                Object[] arguments = this.wildcards.plus(extraWildcards).toObjectArray();
+                if (predicate.apply(arguments)) {
+                    matches = singletonList(arguments).stream();
+                }
             } else {
                 if (alreadyMatched.add(new MatchedValue(methodCall.getReturnValue(), extraWildcards))) {
                     followingMatchers.add(new CallMatcher(this, methodCall.getReturnValue(), extraWildcards));
