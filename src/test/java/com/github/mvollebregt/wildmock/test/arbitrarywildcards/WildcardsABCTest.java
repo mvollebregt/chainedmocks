@@ -1,6 +1,5 @@
 package com.github.mvollebregt.wildmock.test.arbitrarywildcards;
 
-import com.github.mvollebregt.wildmock.Wildmock;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -17,7 +16,7 @@ public class WildcardsABCTest {
     @Test
     public void testWhenABC() {
         // given
-        Wildmock.whenVoid(mock::functionABC, Object.class, Object.class, Object.class).
+        whenVoid(mock::functionABC, Object.class, Object.class, Object.class).
                 then((a, b, c) -> usedArguments = Arrays.asList(a, b, c));
         // when
         mock.functionABC("a", "b", "c");

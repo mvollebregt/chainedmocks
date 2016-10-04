@@ -1,6 +1,5 @@
 package com.github.mvollebregt.wildmock.test.arbitrarywildcards;
 
-import com.github.mvollebregt.wildmock.Wildmock;
 import org.junit.jupiter.api.Test;
 
 import static com.github.mvollebregt.wildmock.Wildmock.*;
@@ -15,7 +14,7 @@ public class WildcardsATest {
     @Test
     public void testWhenA() {
         // given
-        Wildmock.whenVoid(mock::functionA, Object.class).then(a -> usedArgument = a);
+        whenVoid(mock::functionA, Object.class).then(a -> usedArgument = a);
         // when
         mock.functionA("a");
         // then

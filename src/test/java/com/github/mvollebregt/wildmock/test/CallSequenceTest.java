@@ -1,12 +1,10 @@
 package com.github.mvollebregt.wildmock.test;
 
-import com.github.mvollebregt.wildmock.Wildmock;
 import com.github.mvollebregt.wildmock.exceptions.AmbiguousExpectationsException;
 import com.github.mvollebregt.wildmock.test.helpers.ClassToBeMocked;
 import org.junit.jupiter.api.Test;
 
-import static com.github.mvollebregt.wildmock.Wildmock.mock;
-import static com.github.mvollebregt.wildmock.Wildmock.when;
+import static com.github.mvollebregt.wildmock.Wildmock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.expectThrows;
 
@@ -19,7 +17,7 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_SequenceCalled() {
         // given
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status = "sequence called");
@@ -33,7 +31,7 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_OnlyOneCalled() {
         // given
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status = "sequence called");
@@ -46,7 +44,7 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_SequenceCalledWithIntermezzo() {
         // given
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status = "sequence called");
@@ -61,7 +59,7 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_SameSequenceMatchedTwice() {
         // given
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status = "sequence called");
@@ -78,11 +76,11 @@ public class CallSequenceTest {
     public void testVoidSequence_TwoSequencesMatched() {
         // given
         status = "";
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status += "first action called");
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.action();
             mock.yetAnotherAction();
         }).then(() -> status += " and second action called");
@@ -97,11 +95,11 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_DoubleButNonConflictingMatch() {
         // given
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.otherAction();
             mock.action();
         }).then(() -> status = "first action called ");
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.yetAnotherAction();
             mock.action();
         }).then(() -> status += "and second action called");
@@ -136,7 +134,7 @@ public class CallSequenceTest {
     public void testVoidSequence_MatchedTwice() {
         // given
         status = "";
-        Wildmock.whenVoid(() -> {
+        whenVoid(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status += "action called; ");
