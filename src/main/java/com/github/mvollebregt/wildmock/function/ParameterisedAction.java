@@ -18,11 +18,23 @@ public interface ParameterisedAction {
         return params -> expectedCalls.apply(params[0]);
     }
 
+    static ParameterisedAction from(FunctionAR expectedCalls) {
+        return params -> expectedCalls.apply(params[0]);
+    }
+
     static ParameterisedAction from(FunctionAB expectedCalls) {
         return params -> expectedCalls.apply(params[0], params[1]);
     }
 
+    static ParameterisedAction from(FunctionABR expectedCalls) {
+        return params -> expectedCalls.apply(params[0], params[1]);
+    }
+
     static ParameterisedAction from(FunctionABC expectedCalls) {
+        return params -> expectedCalls.apply(params[0], params[1], params[2]);
+    }
+
+    static ParameterisedAction from(FunctionABCR expectedCalls) {
         return params -> expectedCalls.apply(params[0], params[1], params[2]);
     }
 }

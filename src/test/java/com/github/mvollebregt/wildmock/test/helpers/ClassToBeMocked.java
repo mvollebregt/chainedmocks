@@ -75,8 +75,4 @@ public class ClassToBeMocked {
         fail("Underlying methods on mocked class should not be called.");
         return 0;
     }
-
-    public void functionABC(Object a, Object b, Object c) {
-        fail("Underlying methods on mocked class should not be called.");
-    }
 }

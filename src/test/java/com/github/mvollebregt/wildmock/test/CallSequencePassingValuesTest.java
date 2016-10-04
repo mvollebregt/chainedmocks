@@ -17,7 +17,7 @@ public class CallSequencePassingValuesTest {
     @Test
     public void testStubStringPassing_Success() {
         // given
-        when(() -> {
+        whenVoid(() -> {
             String passingString = mock.provideString();
             mock.consume(passingString);
         }).then(() -> status = "mock called");
@@ -31,7 +31,7 @@ public class CallSequencePassingValuesTest {
     @Test
     public void testStubStringPassing_Failure() {
         // given
-        when(() -> {
+        whenVoid(() -> {
             String passingString = mock.provideString();
             mock.consume(passingString);
         }).then(() -> status = "mock called");

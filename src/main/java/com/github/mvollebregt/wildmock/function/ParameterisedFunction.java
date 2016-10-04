@@ -24,6 +24,10 @@ public interface ParameterisedFunction {
         };
     }
 
+    static ParameterisedFunction from(FunctionAR behaviour) {
+        return params -> behaviour.apply(params[0]);
+    }
+
     static ParameterisedFunction from(FunctionAB behaviour) {
         return params -> {
             behaviour.apply(params[0], params[1]);
@@ -31,10 +35,18 @@ public interface ParameterisedFunction {
         };
     }
 
+    static ParameterisedFunction from(FunctionABR behaviour) {
+        return params -> behaviour.apply(params[0], params[1]);
+    }
+
     static ParameterisedFunction from(FunctionABC behaviour) {
         return params -> {
             behaviour.apply(params[0], params[1], params[2]);
             return null;
         };
+    }
+
+    static ParameterisedFunction from(FunctionABCR behaviour) {
+        return params -> behaviour.apply(params[0], params[1], params[2]);
     }
 }
