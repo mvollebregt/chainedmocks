@@ -1,36 +1,40 @@
 package com.github.mvollebregt.wildmock.function;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 @FunctionalInterface
 @SuppressWarnings("unchecked")
-public interface ParameterisedFunction extends Function<Object[], Object> {
+public interface ParameterisedFunction {
 
-    static ParameterisedFunction from(Action behaviour) {
+    Object apply(Object[] arguments);
+
+    static ParameterisedFunction from(FunctionX behaviour) {
         return params -> {
-            behaviour.execute();
+            behaviour.apply();
             return null;
         };
     }
 
-    static ParameterisedFunction from(Consumer behaviour) {
+    static ParameterisedFunction from(FunctionR behaviour) {
+        return params -> behaviour.apply();
+    }
+
+    static ParameterisedFunction from(FunctionA behaviour) {
         return params -> {
-            behaviour.accept(params[0]);
+            behaviour.apply(params[0]);
             return null;
         };
     }
 
-    static ParameterisedFunction from(BiConsumer behaviour) {
+    static ParameterisedFunction from(FunctionAB behaviour) {
         return params -> {
-            behaviour.accept(params[0], params[1]);
+            behaviour.apply(params[0], params[1]);
             return null;
         };
     }
 
-    static ParameterisedFunction from(Supplier behaviour) {
-        return params -> behaviour.get();
+    static ParameterisedFunction from(FunctionABC behaviour) {
+        return params -> {
+            behaviour.apply(params[0], params[1], params[2]);
+            return null;
+        };
     }
 }

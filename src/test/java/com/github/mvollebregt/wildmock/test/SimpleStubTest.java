@@ -69,7 +69,7 @@ public class SimpleStubTest {
     }
 
     @Test
-    public void testConsumer_MockCalled() {
+    public void testFunctionA_MockCalled() {
         // given
         when(() -> mock.consume("expected value")).then(() -> status = "mock called");
         // when
@@ -79,7 +79,7 @@ public class SimpleStubTest {
     }
 
     @Test
-    public void testConsumer_MockNotCalled() {
+    public void testFunctionA_MockNotCalled() {
         // given
         when(() -> mock.consume("expected value")).then(() -> status = "mock called");
         // when

@@ -75,7 +75,7 @@ public class WildcardsTest {
             mock.action();
             int value = mock.identityFunction(wildcard);
             mock.consume(value);
-        }, Integer.class).then((wildcard) -> status = "call sequence called"); // TODO: remove dummy parameter
+        }, Integer.class).then(() -> status = "call sequence called");
         // when
         mock.action();
         mock.identityFunction(1); // first call is matched, "1" is taken as wildcard

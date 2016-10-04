@@ -1,20 +1,12 @@
 package com.github.mvollebregt.wildmock;
 
 import com.github.mvollebregt.wildmock.exceptions.VerificationException;
-import com.github.mvollebregt.wildmock.fluentinterface.When;
-import com.github.mvollebregt.wildmock.fluentinterface.WhenA;
-import com.github.mvollebregt.wildmock.fluentinterface.WhenAB;
-import com.github.mvollebregt.wildmock.fluentinterface.WhenR;
-import com.github.mvollebregt.wildmock.function.Action;
-import com.github.mvollebregt.wildmock.function.ParameterisedAction;
+import com.github.mvollebregt.wildmock.fluentinterface.*;
+import com.github.mvollebregt.wildmock.function.*;
 import com.github.mvollebregt.wildmock.implementation.MockFactory;
 import net.bytebuddy.ByteBuddy;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
-
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static com.github.mvollebregt.wildmock.implementation.MockContext.getMockContext;
 
@@ -28,31 +20,35 @@ public class Wildmock {
         return mockFactory.createMock(classToBeMocked);
     }
 
-    public static When when(Action expectedCalls) {
+    public static When when(FunctionX expectedCalls) {
         return new When(expectedCalls);
     }
 
-    public static <T> WhenR<T> when(Supplier<T> expectedCalls) {
+    public static <T> WhenR<T> when(FunctionR<T> expectedCalls) {
         return new WhenR<>(expectedCalls);
     }
 
-    public static <A> WhenA<A> when(Consumer<A> expectedCalls, Class<A> a) {
+    public static <A> WhenA<A> when(FunctionA<A> expectedCalls, Class<A> a) {
         return new WhenA<>(expectedCalls, a);
     }
 
-    public static <A, B> WhenAB<A, B> when(BiConsumer<A, B> expectedCalls, Class<A> a, Class<B> b) {
+    public static <A, B> WhenAB<A, B> when(FunctionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
         return new WhenAB<>(expectedCalls, a, b);
     }
 
-    public static void verify(Action expectedCalls) {
+    public static <A, B, C> WhenABC<A, B, C> when(FunctionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
+        return new WhenABC<>(expectedCalls, a, b, c);
+    }
+
+    public static void verify(FunctionX expectedCalls) {
         verify(ParameterisedAction.from(expectedCalls));
     }
 
-    public static <A> void verify(Consumer<A> expectedCalls, Class<A> a) {
+    public static <A> void verify(FunctionA<A> expectedCalls, Class<A> a) {
         verify(ParameterisedAction.from(expectedCalls), a);
     }
 
-    public static <A, B> void verify(BiConsumer<A, B> expectedCalls, Class<A> a, Class<B> b) {
+    public static <A, B> void verify(FunctionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
         verify(ParameterisedAction.from(expectedCalls), a, b);
     }
 

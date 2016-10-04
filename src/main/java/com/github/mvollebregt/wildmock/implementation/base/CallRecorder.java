@@ -20,7 +20,7 @@ public class CallRecorder {
 
     public List<MethodCall> record(ParameterisedAction action, Object[] wildcards, CallInterceptor interceptor) {
         this.currentInterceptor = interceptor;
-        action.accept(wildcards);
+        action.apply(wildcards);
         this.currentInterceptor = defaultInterceptor;
         return interceptor.getRecordedCalls();
     }

@@ -1,26 +1,28 @@
 package com.github.mvollebregt.wildmock.function;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 @FunctionalInterface
 @SuppressWarnings("unchecked")
-public interface ParameterisedAction extends Consumer<Object[]> {
+public interface ParameterisedAction {
 
-    static ParameterisedAction from(Action expectedCalls) {
-        return params -> expectedCalls.execute();
+    void apply(Object[] arguments);
+
+    static ParameterisedAction from(FunctionX expectedCalls) {
+        return params -> expectedCalls.apply();
     }
 
-    static ParameterisedAction from(Consumer expectedCalls) {
-        return params -> expectedCalls.accept(params[0]);
+    static ParameterisedAction from(FunctionR expectedCalls) {
+        return params -> expectedCalls.apply();
     }
 
-    static ParameterisedAction from(BiConsumer expectedCalls) {
-        return params -> expectedCalls.accept(params[0], params[1]);
-    }
-    static ParameterisedAction from(Supplier expectedCalls) {
-        return params -> expectedCalls.get();
+    static ParameterisedAction from(FunctionA expectedCalls) {
+        return params -> expectedCalls.apply(params[0]);
     }
 
+    static ParameterisedAction from(FunctionAB expectedCalls) {
+        return params -> expectedCalls.apply(params[0], params[1]);
+    }
+
+    static ParameterisedAction from(FunctionABC expectedCalls) {
+        return params -> expectedCalls.apply(params[0], params[1], params[2]);
+    }
 }

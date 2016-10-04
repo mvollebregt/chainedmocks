@@ -27,7 +27,7 @@ public class SimpleVerifyTest {
     }
 
     @Test
-    public void testVerifyConsumer_Called() {
+    public void testVerifyFunctionA_Called() {
         // when
         mock.consume("expected value");
         // then
@@ -35,7 +35,7 @@ public class SimpleVerifyTest {
     }
 
     @Test
-    public void testVerifyConsumer_NotCalled() {
+    public void testVerifyFunctionA_NotCalled() {
         // when
         mock.consume("unexpected value");
         //
