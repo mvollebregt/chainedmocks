@@ -13,7 +13,7 @@ public interface ParameterisedFunction<R> {
         };
     }
 
-    static ParameterisedFunction from(FunctionX behaviour) {
+    static <R> ParameterisedFunction from(FunctionX<R> behaviour) {
         return params -> behaviour.apply();
     }
 
@@ -24,8 +24,8 @@ public interface ParameterisedFunction<R> {
         };
     }
 
-    static ParameterisedFunction from(FunctionA behaviour) {
-        return params -> behaviour.apply(params[0]);
+    static <A, R> ParameterisedFunction<R> from(FunctionA<A, R> behaviour) {
+        return params -> behaviour.apply((A) params[0]);
     }
 
     static ParameterisedFunction from(ActionAB behaviour) {
@@ -35,8 +35,8 @@ public interface ParameterisedFunction<R> {
         };
     }
 
-    static ParameterisedFunction from(FunctionAB behaviour) {
-        return params -> behaviour.apply(params[0], params[1]);
+    static <A, B, R> ParameterisedFunction<R> from(FunctionAB<A, B, R> behaviour) {
+        return params -> behaviour.apply((A) params[0], (B) params[1]);
     }
 
     static ParameterisedFunction from(ActionABC behaviour) {
@@ -46,7 +46,7 @@ public interface ParameterisedFunction<R> {
         };
     }
 
-    static ParameterisedFunction from(FunctionABC behaviour) {
-        return params -> behaviour.apply(params[0], params[1], params[2]);
+    static <A, B, C, R> ParameterisedFunction<R> from(FunctionABC<A, B, C, R> behaviour) {
+        return params -> behaviour.apply((A) params[0], (B) params[1], (C) params[2]);
     }
 }

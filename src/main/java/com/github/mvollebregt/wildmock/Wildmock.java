@@ -8,6 +8,8 @@ import net.bytebuddy.ByteBuddy;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
+import java.util.List;
+
 import static com.github.mvollebregt.wildmock.implementation.MockContext.getMockContext;
 
 public class Wildmock {
@@ -21,11 +23,10 @@ public class Wildmock {
     }
 
     public static void verify(ActionX expectedCalls) {
-        verify(ParameterisedAction.from(expectedCalls));
+        new Verify(expectedCalls);
     }
 
     public static <A> VerifyA<A> verify(ActionA<A> expectedCalls, Class<A> a) {
-        verify(ParameterisedAction.from(expectedCalls), a);
         return new VerifyA<>(expectedCalls, a);
     }
 
@@ -71,7 +72,9 @@ public class Wildmock {
 
     private static void verify(ParameterisedAction parameterisedAction,
                                Class... wildcardTypes) {
-        if (!getMockContext().verify(parameterisedAction, arguments -> true, wildcardTypes)) {
+        // TODO: reuse verify-object!
+        List<Object[]> matches = getMockContext().verify(parameterisedAction, wildcardTypes);
+        if (matches.isEmpty()) {
             throw new VerificationException();
         }
     }

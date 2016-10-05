@@ -68,10 +68,12 @@ public class CallMatcher {
         return behaviour.apply(arguments);
     }
 
+    public boolean satisfiesPredicate(Object[] arguments) {
+        return predicate.apply(arguments);
+    }
 
-    public boolean matches(List<MethodCall> actualCalls) {
-        return actualCalls.stream().reduce(false, (alreadyMatched, methodCall) -> alreadyMatched ||
-                match(methodCall).findAny().isPresent(), Boolean::logicalOr);
+    public List<Object[]> matches(List<MethodCall> actualCalls) {
+        return actualCalls.stream().flatMap(this::match).collect(Collectors.toList());
     }
 
     public Stream<Object[]> match(MethodCall methodCall) {
@@ -85,9 +87,7 @@ public class CallMatcher {
 
             if (remainingCalls.size() == 1) {
                 Object[] arguments = this.wildcards.plus(extraWildcards).toObjectArray();
-                if (predicate.apply(arguments)) {
-                    matches = singletonList(arguments).stream();
-                }
+                matches = singletonList(arguments).stream();
             } else {
                 if (alreadyMatched.add(new MatchedValue(methodCall.getReturnValue(), extraWildcards))) {
                     followingMatchers.add(new CallMatcher(this, methodCall.getReturnValue(), extraWildcards));

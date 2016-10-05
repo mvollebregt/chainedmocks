@@ -6,6 +6,8 @@ import com.github.mvollebregt.wildmock.implementation.base.CallInterceptor;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
 import com.github.mvollebregt.wildmock.implementation.matching.CallMatcher;
 
+import java.util.List;
+
 public class MockContext {
 
     private final static MockContext mockContext = new MockContext();
@@ -22,8 +24,8 @@ public class MockContext {
         actualCallInterceptor.addStub(action, predicate, behaviour, wildcardTypes, callRecorder);
     }
 
-    public boolean verify(ParameterisedAction action, ParameterisedFunction<Boolean> predicate, Class... wildcardTypes) {
-        return new CallMatcher(action, predicate, null, wildcardTypes, callRecorder).matches(actualCallInterceptor.getRecordedCalls());
+    public List<Object[]> verify(ParameterisedAction action, Class... wildcardTypes) {
+        return new CallMatcher(action, null, null, wildcardTypes, callRecorder).matches(actualCallInterceptor.getRecordedCalls());
     }
 
     CallInterceptor getCurrentInterceptor() {

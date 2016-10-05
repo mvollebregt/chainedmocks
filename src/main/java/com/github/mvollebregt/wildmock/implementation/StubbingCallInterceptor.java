@@ -44,7 +44,9 @@ class StubbingCallInterceptor implements CallInterceptor {
     }
 
     private Set<Object> match(MethodCall methodCall) {
-        return matchers.stream().flatMap(callMatcher -> callMatcher.match(methodCall).map(callMatcher::applyBehaviour)).
+        return matchers.stream().flatMap(callMatcher -> callMatcher.match(methodCall).
+                filter(callMatcher::satisfiesPredicate).
+                map(callMatcher::applyBehaviour)).
                 collect(Collectors.toSet());
     }
 }

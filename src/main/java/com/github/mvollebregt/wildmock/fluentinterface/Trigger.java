@@ -21,12 +21,14 @@ public class Trigger {
         this.classes = classes;
     }
 
-    public void then(ActionX behaviour) {
-        then(ParameterisedFunction.from(behaviour));
+    Trigger(Trigger source, ParameterisedFunction<Boolean> predicate) {
+        this.expectedCalls = source.expectedCalls;
+        this.classes = source.classes;
+        this.predicate = predicate;
     }
 
-    void setPredicate(ParameterisedFunction<Boolean> predicate) {
-        this.predicate = predicate;
+    public void then(ActionX behaviour) {
+        then(ParameterisedFunction.from(behaviour));
     }
 
     @SuppressWarnings("unchecked")
