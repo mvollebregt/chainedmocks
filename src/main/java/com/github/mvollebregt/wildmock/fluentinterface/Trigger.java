@@ -1,27 +1,27 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
-import com.github.mvollebregt.wildmock.function.FunctionX;
+import com.github.mvollebregt.wildmock.function.ActionX;
 import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 import static com.github.mvollebregt.wildmock.implementation.MockContext.getMockContext;
 
-public class When<R> {
+public class Trigger {
 
-    private final ParameterisedAction expectedCalls;
     private final Class[] classes;
-    private ParameterisedFunction<Boolean> predicate = arguments -> true;
+    private final ParameterisedAction expectedCalls;
+    private ParameterisedFunction predicate = arguments -> true;
 
-    public When(FunctionX<R> expectedCalls) {
+    public Trigger(ActionX expectedCalls) {
         this(ParameterisedAction.from(expectedCalls));
     }
 
-    When(ParameterisedAction expectedCalls, Class... classes) {
+    Trigger(ParameterisedAction expectedCalls, Class... classes) {
         this.expectedCalls = expectedCalls;
         this.classes = classes;
     }
 
-    public void then(FunctionX<R> behaviour) {
+    public void then(ActionX behaviour) {
         then(ParameterisedFunction.from(behaviour));
     }
 

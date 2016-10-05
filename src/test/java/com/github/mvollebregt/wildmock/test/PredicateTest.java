@@ -17,7 +17,7 @@ public class PredicateTest {
     @Test
     public void testStubWithPredicate_success() {
         // given
-        whenVoid(mock::consume, String.class).with(a -> a.equals("a")).then(a -> usedArgument = a);
+        trigger(mock::consume, String.class).with(a -> a.equals("a")).then(a -> usedArgument = a);
         // when
         mock.consume("a");
         // then
@@ -27,7 +27,7 @@ public class PredicateTest {
     @Test
     public void testStubWithPredicate_fail() {
         // given
-        whenVoid(mock::consume, String.class).with(a -> a.equals("a")).then(a -> usedArgument = a);
+        trigger(mock::consume, String.class).with(a -> a.equals("a")).then(a -> usedArgument = a);
         // when
         mock.consume("other value");
         // then

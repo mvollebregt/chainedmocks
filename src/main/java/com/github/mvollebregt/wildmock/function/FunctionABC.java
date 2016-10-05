@@ -1,8 +1,8 @@
 package com.github.mvollebregt.wildmock.function;
 
 @FunctionalInterface
-public interface FunctionABC<A, B, C> {
+public interface FunctionABC<A, B, C, R> {
 
-    void apply(A a, B b, C c);
+    R apply(A a, B b, C c);
 
 }

@@ -16,7 +16,7 @@ public class WildcardsABCTest {
     @Test
     public void testWhenABC() {
         // given
-        whenVoid(mock::functionABC, Object.class, Object.class, Object.class).
+        trigger(mock::functionABC, Object.class, Object.class, Object.class).
                 then((a, b, c) -> usedArguments = Arrays.asList(a, b, c));
         // when
         mock.functionABC("a", "b", "c");

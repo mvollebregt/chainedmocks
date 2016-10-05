@@ -17,7 +17,7 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_SequenceCalled() {
         // given
-        whenVoid(() -> {
+        trigger(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status = "sequence called");
@@ -31,7 +31,7 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_OnlyOneCalled() {
         // given
-        whenVoid(() -> {
+        trigger(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status = "sequence called");
@@ -44,7 +44,7 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_SequenceCalledWithIntermezzo() {
         // given
-        whenVoid(() -> {
+        trigger(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status = "sequence called");
@@ -59,7 +59,7 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_SameSequenceMatchedTwice() {
         // given
-        whenVoid(() -> {
+        trigger(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status = "sequence called");
@@ -76,11 +76,11 @@ public class CallSequenceTest {
     public void testVoidSequence_TwoSequencesMatched() {
         // given
         status = "";
-        whenVoid(() -> {
+        trigger(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status += "first action called");
-        whenVoid(() -> {
+        trigger(() -> {
             mock.action();
             mock.yetAnotherAction();
         }).then(() -> status += " and second action called");
@@ -95,11 +95,11 @@ public class CallSequenceTest {
     @Test
     public void testVoidSequence_DoubleButNonConflictingMatch() {
         // given
-        whenVoid(() -> {
+        trigger(() -> {
             mock.otherAction();
             mock.action();
         }).then(() -> status = "first action called ");
-        whenVoid(() -> {
+        trigger(() -> {
             mock.yetAnotherAction();
             mock.action();
         }).then(() -> status += "and second action called");
@@ -134,7 +134,7 @@ public class CallSequenceTest {
     public void testVoidSequence_MatchedTwice() {
         // given
         status = "";
-        whenVoid(() -> {
+        trigger(() -> {
             mock.action();
             mock.otherAction();
         }).then(() -> status += "action called; ");

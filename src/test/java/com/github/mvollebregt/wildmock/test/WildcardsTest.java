@@ -5,7 +5,7 @@ import com.github.mvollebregt.wildmock.test.helpers.ClassToBeMocked;
 import org.junit.jupiter.api.Test;
 
 import static com.github.mvollebregt.wildmock.Wildmock.mock;
-import static com.github.mvollebregt.wildmock.Wildmock.whenVoid;
+import static com.github.mvollebregt.wildmock.Wildmock.trigger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.expectThrows;
 
@@ -18,7 +18,7 @@ public class WildcardsTest {
     @Test
     public void testStubOneWildcard() {
         // given
-        whenVoid(mock::consume, String.class).then(wildcard -> status = "mock called with wildcard " + wildcard);
+        trigger(mock::consume, String.class).then(wildcard -> status = "mock called with wildcard " + wildcard);
         // when
         mock.consume("argument");
         // then
@@ -28,7 +28,7 @@ public class WildcardsTest {
     @Test
     public void testStubPrimitiveWildcard() {
         // given
-        whenVoid(mock::consume, Integer.class).then(wildcard -> status = "mock called with wildcard " + wildcard);
+        trigger(mock::consume, Integer.class).then(wildcard -> status = "mock called with wildcard " + wildcard);
         // when
         mock.consume(3);
         // then
@@ -37,7 +37,7 @@ public class WildcardsTest {
 
     @Test
     public void testWildcardUsedTwice_Success() {
-        whenVoid(wildcard -> {
+        trigger(wildcard -> {
             mock.consume(wildcard);
             mock.consume(wildcard);
         }, String.class).then(wildcard -> status = "call sequence called with wildcard " + wildcard);
@@ -50,7 +50,7 @@ public class WildcardsTest {
 
     @Test
     public void testWildcardUsedTwice_Failure() {
-        whenVoid(wildcard -> {
+        trigger(wildcard -> {
             mock.consume(wildcard);
             mock.consume(wildcard);
         }, String.class).then(wildcard -> status = "call sequence called with wildcard " + wildcard);
@@ -64,14 +64,14 @@ public class WildcardsTest {
     @Test
     public void testWildcardNotFound() {
         expectThrows(UnusedWildcardException.class, () ->
-                whenVoid(param -> mock.action(), Integer.class).then(wildcard -> {
+                trigger(param -> mock.action(), Integer.class).then(wildcard -> {
                 }));
     }
 
     @Test
     public void testDifferentReturnValue() {
         // given
-        whenVoid((wildcard) -> {
+        trigger((wildcard) -> {
             mock.action();
             int value = mock.identityFunction(wildcard);
             mock.consume(value);

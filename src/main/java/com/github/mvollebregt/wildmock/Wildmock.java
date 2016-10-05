@@ -20,53 +20,53 @@ public class Wildmock {
         return mockFactory.createMock(classToBeMocked);
     }
 
-    public static When whenVoid(FunctionX expectedCalls) {
-        return new When(expectedCalls);
-    }
-
-    public static <A> WhenA<A> whenVoid(FunctionA<A> expectedCalls, Class<A> a) {
-        return new WhenA<>(expectedCalls, a);
-    }
-
-    public static <A, B> WhenAB<A, B> whenVoid(FunctionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
-        return new WhenAB<>(expectedCalls, a, b);
-    }
-
-    public static <A, B, C> WhenABC<A, B, C> whenVoid(FunctionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
-        return new WhenABC<>(expectedCalls, a, b, c);
-    }
-
-    public static <R> WhenR<R> when(FunctionR<R> expectedCalls) {
-        return new WhenR<>(expectedCalls);
-    }
-
-    public static <A, R> WhenAR<A, R> when(FunctionAR<A, R> expectedCalls, Class<A> a) {
-        return new WhenAR<>(expectedCalls, a);
-    }
-
-    public static <A, B, R> WhenABR<A, B, R> when(FunctionABR<A, B, R> expectedCalls, Class<A> a, Class<B> b) {
-        return new WhenABR<>(expectedCalls, a, b);
-    }
-
-    public static <A, B, C, R> WhenABCR<A, B, C, R> when(FunctionABCR<A, B, C, R> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
-        return new WhenABCR<>(expectedCalls, a, b, c);
-    }
-
-    public static void verify(FunctionX expectedCalls) {
+    public static void verify(ActionX expectedCalls) {
         verify(ParameterisedAction.from(expectedCalls));
     }
 
-    public static <A> VerifyA<A> verify(FunctionA<A> expectedCalls, Class<A> a) {
+    public static <A> VerifyA<A> verify(ActionA<A> expectedCalls, Class<A> a) {
         verify(ParameterisedAction.from(expectedCalls), a);
         return new VerifyA<>(expectedCalls, a);
     }
 
-    public static <A, B> void verify(FunctionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
+    public static <A, B> void verify(ActionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
         verify(ParameterisedAction.from(expectedCalls), a, b);
     }
 
-    public static <A, B, C> void verify(FunctionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
+    public static <A, B, C> void verify(ActionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
         verify(ParameterisedAction.from(expectedCalls), a, b, c);
+    }
+
+    public static <R> When<R> when(FunctionX<R> expectedCalls) {
+        return new When<>(expectedCalls);
+    }
+
+    public static <A, R> WhenA<A, R> when(FunctionA<A, R> expectedCalls, Class<A> a) {
+        return new WhenA<>(expectedCalls, a);
+    }
+
+    public static <A, B, R> WhenAB<A, B, R> when(FunctionAB<A, B, R> expectedCalls, Class<A> a, Class<B> b) {
+        return new WhenAB<>(expectedCalls, a, b);
+    }
+
+    public static <A, B, C, R> WhenABC<A, B, C, R> when(FunctionABC<A, B, C, R> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
+        return new WhenABC<>(expectedCalls, a, b, c);
+    }
+
+    public static Trigger trigger(ActionX expectedCalls) {
+        return new Trigger(expectedCalls);
+    }
+
+    public static <A> TriggerA<A> trigger(ActionA<A> expectedCalls, Class<A> a) {
+        return new TriggerA<>(expectedCalls, a);
+    }
+
+    public static <A, B> TriggerAB<A, B> trigger(ActionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
+        return new TriggerAB<>(expectedCalls, a, b);
+    }
+
+    public static <A, B, C> TriggerABC<A, B, C> trigger(ActionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
+        return new TriggerABC<>(expectedCalls, a, b, c);
     }
 
     private static void verify(ParameterisedAction parameterisedAction,

@@ -1,8 +1,8 @@
 package com.github.mvollebregt.wildmock.function;
 
 @FunctionalInterface
-public interface FunctionX {
+public interface FunctionX<R> {
 
-    void apply();
+    R apply();
 
 }

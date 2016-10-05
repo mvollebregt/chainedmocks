@@ -16,7 +16,7 @@ public class WildcardsABTest {
     @Test
     public void testWhenAB() {
         // given
-        whenVoid(mock::functionAB, Object.class, Object.class).
+        trigger(mock::functionAB, Object.class, Object.class).
                 then((a, b) -> usedArguments = Arrays.asList(a, b));
         // when
         mock.functionAB("a", "b");

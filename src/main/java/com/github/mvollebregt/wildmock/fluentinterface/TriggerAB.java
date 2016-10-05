@@ -1,16 +1,16 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
-import com.github.mvollebregt.wildmock.function.FunctionABR;
+import com.github.mvollebregt.wildmock.function.ActionAB;
 import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
-public class WhenABR<A, B, R> extends When {
+public class TriggerAB<A, B> extends Trigger {
 
-    public WhenABR(FunctionABR<A, B, R> expectedCalls, Class<A> a, Class<B> b) {
+    public TriggerAB(ActionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
         super(ParameterisedAction.from(expectedCalls), a, b);
     }
 
-    public void then(FunctionABR<A, B, R> behaviour) {
+    public void then(ActionAB<A, B> behaviour) {
         then(ParameterisedFunction.from(behaviour));
     }
 }

@@ -4,7 +4,7 @@ import com.github.mvollebregt.wildmock.test.helpers.ClassToBeMocked;
 import org.junit.jupiter.api.Test;
 
 import static com.github.mvollebregt.wildmock.Wildmock.mock;
-import static com.github.mvollebregt.wildmock.Wildmock.whenVoid;
+import static com.github.mvollebregt.wildmock.Wildmock.trigger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SimpleStubTest {
@@ -15,7 +15,7 @@ public class SimpleStubTest {
     @Test
     public void testVoid_MockCalled() {
         // given
-        whenVoid(mock::action).then(() -> status = "mock called");
+        trigger(mock::action).then(() -> status = "mock called");
         // when
         mock.action();
         // then
@@ -25,7 +25,7 @@ public class SimpleStubTest {
     @Test
     public void testVoid_MockNotCalled() {
         // given
-        whenVoid(mock::action).then(() -> status = "mock called");
+        trigger(mock::action).then(() -> status = "mock called");
         // then
         assertEquals("mock not called", status);
     }
@@ -34,7 +34,7 @@ public class SimpleStubTest {
     public void testVoid_MockCalledTwice() {
         // given
         status = "";
-        whenVoid(mock::action).then(() -> status += "mock called; ");
+        trigger(mock::action).then(() -> status += "mock called; ");
         // when
         mock.action();
         mock.action();
@@ -46,8 +46,8 @@ public class SimpleStubTest {
     @Test
     public void testTwoVoids_BothCalled() {
         // given
-        whenVoid(mock::action).then(() -> status = "first action called");
-        whenVoid(mock::otherAction).then(() -> status += " and second action called");
+        trigger(mock::action).then(() -> status = "first action called");
+        trigger(mock::otherAction).then(() -> status += " and second action called");
         // when
         mock.action();
         mock.otherAction();
@@ -59,8 +59,8 @@ public class SimpleStubTest {
     public void testVoidOnTwoMocks_BothCalled() {
         // given
         ClassToBeMocked secondMock = mock(ClassToBeMocked.class);
-        whenVoid(mock::action).then(() -> status = "action on first mock called");
-        whenVoid(secondMock::action).then(() -> status += " and action on second mock called");
+        trigger(mock::action).then(() -> status = "action on first mock called");
+        trigger(secondMock::action).then(() -> status += " and action on second mock called");
         // when
         mock.action();
         secondMock.action();
@@ -71,7 +71,7 @@ public class SimpleStubTest {
     @Test
     public void testFunctionA_MockCalled() {
         // given
-        whenVoid(() -> mock.consume("expected value")).then(() -> status = "mock called");
+        trigger(() -> mock.consume("expected value")).then(() -> status = "mock called");
         // when
         mock.consume("expected value");
         // then
@@ -81,7 +81,7 @@ public class SimpleStubTest {
     @Test
     public void testFunctionA_MockNotCalled() {
         // given
-        whenVoid(() -> mock.consume("expected value")).then(() -> status = "mock called");
+        trigger(() -> mock.consume("expected value")).then(() -> status = "mock called");
         // when
         mock.consume("other value");
         // then
