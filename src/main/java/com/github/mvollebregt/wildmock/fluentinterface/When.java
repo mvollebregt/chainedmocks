@@ -21,6 +21,12 @@ public class When<R> {
         this.classes = classes;
     }
 
+    When(When source, ParameterisedFunction<Boolean> predicate) {
+        this.expectedCalls = source.expectedCalls;
+        this.classes = source.classes;
+        this.predicate = predicate;
+    }
+
     public void then(FunctionX<R> behaviour) {
         then(ParameterisedFunction.from(behaviour));
     }
