@@ -30,8 +30,8 @@ public class Wildmock {
         return new VerifyA<>(expectedCalls, a);
     }
 
-    public static <A, B> void verify(ActionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
-        verify(ParameterisedAction.from(expectedCalls), a, b);
+    public static <A, B> VerifyAB<A, B> verify(ActionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
+        return new VerifyAB<>(expectedCalls, a, b);
     }
 
     public static <A, B, C> void verify(ActionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {

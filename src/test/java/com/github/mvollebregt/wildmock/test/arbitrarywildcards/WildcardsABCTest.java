@@ -16,10 +16,10 @@ public class WildcardsABCTest {
     @Test
     public void testWhenABC() {
         // given
-        trigger(mock::functionABC, Object.class, Object.class, Object.class).
+        trigger(mock::actionABC, Object.class, Object.class, Object.class).
                 then((a, b, c) -> usedArguments = Arrays.asList(a, b, c));
         // when
-        mock.functionABC("a", "b", "c");
+        mock.actionABC("a", "b", "c");
         // then
         assertEquals(Arrays.asList("a", "b", "c"), usedArguments);
     }
@@ -27,9 +27,9 @@ public class WildcardsABCTest {
     @Test
     public void testWhenABCR() {
         // given
-        when(mock::functionABCR, Object.class, Object.class, Object.class).then((a, b, c) -> Arrays.asList(a, b, c));
+        when(mock::functionABC, Object.class, Object.class, Object.class).then((a, b, c) -> Arrays.asList(a, b, c));
         // when
-        usedArguments = mock.functionABCR("a", "b", "c");
+        usedArguments = mock.functionABC("a", "b", "c");
         // then
         assertEquals(Arrays.asList("a", "b", "c"), usedArguments);
     }
@@ -37,8 +37,8 @@ public class WildcardsABCTest {
     @Test
     public void testVerifyABC() {
         // when
-        mock.functionABC("a", "b", "c");
+        mock.actionABC("a", "b", "c");
         // then
-        verify(mock::functionABC, Object.class, Object.class, Object.class);
+        verify(mock::actionABC, Object.class, Object.class, Object.class);
     }
 }

@@ -13,11 +13,27 @@ public class WildcardsATest {
     private Object returnValue;
 
     @Test
+    public void testVerifyA() {
+        // when
+        mock.actionA("a");
+        // then
+        verify(mock::actionA, Object.class);
+    }
+
+    @Test
+    public void testVerifyWithA() {
+        // when
+        mock.actionA("a");
+        // then
+        verify(mock::actionA, String.class).with(a -> a.equals("a"));
+    }
+
+    @Test
     public void testWhenA() {
         // given
-        when(mock::functionAR, Object.class).then(a -> a);
+        when(mock::functionA, Object.class).then(a -> a);
         // when
-        usedArgument = mock.functionAR("a");
+        usedArgument = mock.functionA("a");
         // then
         assertEquals("a", usedArgument);
     }
@@ -25,9 +41,9 @@ public class WildcardsATest {
     @Test
     public void testWhenAWithoutWildcards() {
         // given
-        when(mock::functionAR, Object.class).then(() -> 3);
+        when(mock::functionA, Object.class).then(() -> 3);
         // when
-        returnValue = mock.functionAR("a");
+        returnValue = mock.functionA("a");
         // then
         assertEquals(3, returnValue);
     }
@@ -35,9 +51,9 @@ public class WildcardsATest {
     @Test
     public void testWhenWithA() {
         // given
-        when(mock::functionAR, Object.class).with(a -> a.equals("a")).then(a -> a);
+        when(mock::functionA, Object.class).with(a -> a.equals("a")).then(a -> a);
         // when
-        usedArgument = mock.functionAR("a");
+        usedArgument = mock.functionA("a");
         // then
         assertEquals("a", usedArgument);
     }
@@ -45,9 +61,9 @@ public class WildcardsATest {
     @Test
     public void testTriggerA() {
         // given
-        trigger(mock::functionA, Object.class).then(a -> usedArgument = a);
+        trigger(mock::actionA, Object.class).then(a -> usedArgument = a);
         // when
-        mock.functionA("a");
+        mock.actionA("a");
         // then
         assertEquals("a", usedArgument);
     }
@@ -55,9 +71,9 @@ public class WildcardsATest {
     @Test
     public void testTriggerAWithoutWildcards() {
         // given
-        trigger(mock::functionA, Object.class).then(() -> returnValue = 3);
+        trigger(mock::actionA, Object.class).then(() -> returnValue = 3);
         // when
-        mock.functionA("a");
+        mock.actionA("a");
         // then
         assertEquals(3, returnValue);
     }
@@ -65,27 +81,10 @@ public class WildcardsATest {
     @Test
     public void testTriggerWithA() {
         // given
-        trigger(mock::functionA, Object.class).with(a -> a.equals("a")).then(a -> usedArgument = a);
+        trigger(mock::actionA, Object.class).with(a -> a.equals("a")).then(a -> usedArgument = a);
         // when
-        mock.functionA("a");
+        mock.actionA("a");
         // then
         assertEquals("a", usedArgument);
     }
-
-    @Test
-    public void testVerifyA() {
-        // when
-        mock.functionA("a");
-        // then
-        verify(mock::functionA, Object.class);
-    }
-
-    @Test
-    public void testVerifyWithA() {
-        // when
-        mock.functionA("a");
-        // then
-        verify(mock::functionA, String.class).with(a -> a.equals("a"));
-    }
-
 }
