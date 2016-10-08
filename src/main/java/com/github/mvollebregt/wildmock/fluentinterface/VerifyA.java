@@ -7,8 +7,14 @@ import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 public class VerifyA<A> extends Verify {
 
-    public VerifyA(ActionA<A> expectedCalls, Class<A> a) {
-        super(ParameterisedAction.from(expectedCalls), a);
+    public static <A> VerifyA<A> verify(ActionA<A> expectedCalls, Class<A> a) {
+        VerifyA<A> verify = new VerifyA<>(ParameterisedAction.from(expectedCalls), a);
+        verify.check();
+        return verify;
+    }
+
+    private VerifyA(ParameterisedAction from, Class<A> a) {
+        super(from, a);
     }
 
     public void with(FunctionA<A, Boolean> predicate) {

@@ -1,16 +1,11 @@
 package com.github.mvollebregt.wildmock;
 
-import com.github.mvollebregt.wildmock.exceptions.VerificationException;
 import com.github.mvollebregt.wildmock.fluentinterface.*;
 import com.github.mvollebregt.wildmock.function.*;
 import com.github.mvollebregt.wildmock.implementation.MockFactory;
 import net.bytebuddy.ByteBuddy;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
-
-import java.util.List;
-
-import static com.github.mvollebregt.wildmock.implementation.MockContext.getMockContext;
 
 public class Wildmock {
 
@@ -22,20 +17,20 @@ public class Wildmock {
         return mockFactory.createMock(classToBeMocked);
     }
 
-    public static void verify(ActionX expectedCalls) {
-        new Verify(expectedCalls);
+    public static Verify verify(ActionX expectedCalls) {
+        return Verify.verify(expectedCalls);
     }
 
     public static <A> VerifyA<A> verify(ActionA<A> expectedCalls, Class<A> a) {
-        return new VerifyA<>(expectedCalls, a);
+        return VerifyA.verify(expectedCalls, a);
     }
 
     public static <A, B> VerifyAB<A, B> verify(ActionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
-        return new VerifyAB<>(expectedCalls, a, b);
+        return VerifyAB.verify(expectedCalls, a, b);
     }
 
-    public static <A, B, C> void verify(ActionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
-        verify(ParameterisedAction.from(expectedCalls), a, b, c);
+    public static <A, B, C> VerifyABC<A, B, C> verify(ActionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
+        return VerifyABC.verify(expectedCalls, a, b, c);
     }
 
     public static <R> When<R> when(FunctionX<R> expectedCalls) {
@@ -68,14 +63,5 @@ public class Wildmock {
 
     public static <A, B, C> TriggerABC<A, B, C> trigger(ActionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
         return new TriggerABC<>(expectedCalls, a, b, c);
-    }
-
-    private static void verify(ParameterisedAction parameterisedAction,
-                               Class... wildcardTypes) {
-        // TODO: reuse verify-object!
-        List<Object[]> matches = getMockContext().verify(parameterisedAction, wildcardTypes);
-        if (matches.isEmpty()) {
-            throw new VerificationException();
-        }
     }
 }
