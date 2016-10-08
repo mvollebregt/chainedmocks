@@ -69,7 +69,7 @@ public class CallMatcher {
     }
 
     public boolean satisfiesPredicate(Object[] arguments) {
-        return predicate.apply(arguments);
+        return predicate != null ? predicate.apply(arguments) : true;
     }
 
     public List<Object[]> matches(List<MethodCall> actualCalls) {

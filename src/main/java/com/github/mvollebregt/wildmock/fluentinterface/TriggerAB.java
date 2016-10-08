@@ -2,16 +2,24 @@ package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.ActionAB;
 import com.github.mvollebregt.wildmock.function.FunctionAB;
+import com.github.mvollebregt.wildmock.function.ParameterisedAction;
+import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
-public class TriggerAB<A, B> extends TriggerWithAB<A, B> {
+public class TriggerAB<A, B> extends Trigger {
 
     public TriggerAB(ActionAB<A, B> expectedCalls, Class<A> a, Class<B> b) {
-        super(expectedCalls, a, b);
+        super(ParameterisedAction.from(expectedCalls), a, b);
     }
 
-    @SuppressWarnings("unchecked")
-    public TriggerWithAB<A, B> with(FunctionAB<A, B, Boolean> predicate) {
-        return new TriggerWithAB<>(this, predicate);
+    public TriggerAB<A, B> with(FunctionAB<A, B, Boolean> predicate) {
+        return new TriggerAB<>(this, predicate);
     }
 
+    public void then(ActionAB<A, B> behaviour) {
+        then(ParameterisedFunction.from(behaviour));
+    }
+
+    private TriggerAB(TriggerAB<A, B> source, FunctionAB<A, B, Boolean> predicate) {
+        super(source, ParameterisedFunction.from(predicate));
+    }
 }

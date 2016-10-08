@@ -13,11 +13,11 @@ public class VerifyA<A> extends Verify {
         return verify;
     }
 
-    private VerifyA(ParameterisedAction from, Class<A> a) {
-        super(from, a);
-    }
-
     public void with(FunctionA<A, Boolean> predicate) {
         super.with(ParameterisedFunction.from(predicate));
+    }
+
+    private VerifyA(ParameterisedAction from, Class<A> a) {
+        super(from, a);
     }
 }

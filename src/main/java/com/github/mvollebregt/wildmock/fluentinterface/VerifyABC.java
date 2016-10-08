@@ -14,12 +14,12 @@ public class VerifyABC<A, B, C> extends Verify {
         return verify;
     }
 
+    public void with(FunctionABC<A, B, C, Boolean> predicate) {
+        super.with(ParameterisedFunction.from(predicate));
+    }
+
     private VerifyABC(ParameterisedAction from,
                       Class<A> a, Class<B> b, Class<C> c) {
         super(from, a, b, c);
-    }
-
-    public void with(FunctionABC<A, B, C, Boolean> predicate) {
-        super.with(ParameterisedFunction.from(predicate));
     }
 }

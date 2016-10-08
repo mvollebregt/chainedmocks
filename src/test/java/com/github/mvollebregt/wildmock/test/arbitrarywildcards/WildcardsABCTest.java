@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WildcardsABCTest {
 
-    private ArbitraryWildcardsMockClass mock = mock(ArbitraryWildcardsMockClass.class);
+    private final ArbitraryWildcardsMockClass mock = mock(ArbitraryWildcardsMockClass.class);
 
     private Object usedArguments;
     private Object returnValue;
@@ -52,15 +52,15 @@ public class WildcardsABCTest {
     }
 
     @Test
-    public void testWhenWithAB() {
+    public void testWhenWithABC() {
         // given
-        when(mock::functionAB, Object.class, Object.class).
-                with((a, b) -> a.equals("a") && b.equals("b")).
-                then((a, b) -> Arrays.asList(a, b));
+        when(mock::functionABC, Object.class, Object.class, Object.class).
+                with((a, b, c) -> a.equals("a") && b.equals("b") && c.equals("c")).
+                then((a, b, c) -> Arrays.asList(a, b, c));
         // when
-        usedArguments = mock.functionAB("a", "b");
+        usedArguments = mock.functionABC("a", "b", "c");
         // then
-        assertEquals(Arrays.asList("a", "b"), usedArguments);
+        assertEquals(Arrays.asList("a", "b", "c"), usedArguments);
     }
 
     @Test
@@ -73,6 +73,17 @@ public class WildcardsABCTest {
         // then
         assertEquals(Arrays.asList("a", "b", "c"), usedArguments);
     }
+
+    @Test
+    public void testTriggerABCWithoutWildcards() {
+        // given
+        trigger(mock::actionABC, Object.class, Object.class, Object.class).then(() -> returnValue = 3);
+        // when
+        mock.actionABC("a", "b", "c");
+        // then
+        assertEquals(3, returnValue);
+    }
+
 
     @Test
     public void testTriggerWithABC() {

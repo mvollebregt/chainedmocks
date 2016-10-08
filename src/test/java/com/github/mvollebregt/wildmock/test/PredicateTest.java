@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PredicateTest {
 
-    private ClassToBeMocked mock = mock(ClassToBeMocked.class);
+    private final ClassToBeMocked mock = mock(ClassToBeMocked.class);
 
     private Object usedArgument;
 
@@ -32,6 +32,17 @@ public class PredicateTest {
         mock.consume("other value");
         // then
         assertEquals(null, usedArgument);
+    }
+
+    @Test
+    public void testStubWithTwoPredicates() {
+        // given
+        trigger(mock::consume, String.class).with(a -> a.equals("a")).with(a -> false).then(a -> usedArgument = a);
+        // when
+        mock.consume("a");
+        // then
+        assertEquals(null, usedArgument);
+
     }
 
     @Test

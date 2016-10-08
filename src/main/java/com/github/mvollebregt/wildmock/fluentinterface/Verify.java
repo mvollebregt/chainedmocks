@@ -26,7 +26,6 @@ public class Verify {
         this.expectedCalls = expectedCalls;
     }
 
-    @SuppressWarnings("unchecked")
     void with(ParameterisedFunction<Boolean> predicate) {
         if (!matches.stream().filter(predicate::apply).findAny().isPresent()) {
             throw new VerificationException();

@@ -1,15 +1,24 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.FunctionAB;
+import com.github.mvollebregt.wildmock.function.ParameterisedAction;
+import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
-public class WhenAB<A, B, R> extends WhenWithAB<A, B, R> {
+public class WhenAB<A, B, R> extends When<R> {
 
     public WhenAB(FunctionAB<A, B, R> expectedCalls, Class<A> a, Class<B> b) {
-        super(expectedCalls, a, b);
+        super(ParameterisedAction.from(expectedCalls), a, b);
     }
 
-    @SuppressWarnings("unchecked")
-    public WhenWithAB<A, B, R> with(FunctionAB<A, B, Boolean> predicate) {
-        return new WhenWithAB<>(this, predicate);
+    public WhenAB<A, B, R> with(FunctionAB<A, B, Boolean> predicate) {
+        return new WhenAB<>(this, predicate);
+    }
+
+    public void then(FunctionAB<A, B, R> behaviour) {
+        then(ParameterisedFunction.from(behaviour));
+    }
+
+    private WhenAB(WhenAB<A, B, R> source, FunctionAB<A, B, Boolean> predicate) {
+        super(source, ParameterisedFunction.from(predicate));
     }
 }

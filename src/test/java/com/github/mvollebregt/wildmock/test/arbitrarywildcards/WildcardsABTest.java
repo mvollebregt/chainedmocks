@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WildcardsABTest {
 
-    private ArbitraryWildcardsMockClass mock = mock(ArbitraryWildcardsMockClass.class);
+    private final ArbitraryWildcardsMockClass mock = mock(ArbitraryWildcardsMockClass.class);
 
     private Object usedArguments;
     private Object returnValue;

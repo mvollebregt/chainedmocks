@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ReuseOfWhenAndTriggers {
 
-    private ClassToBeMocked mock = mock(ClassToBeMocked.class);
+    private final ClassToBeMocked mock = mock(ClassToBeMocked.class);
 
     @Test
     public void testReuseTrigger() {
