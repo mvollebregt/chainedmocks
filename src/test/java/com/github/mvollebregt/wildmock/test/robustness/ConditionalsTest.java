@@ -1,4 +1,4 @@
-package com.github.mvollebregt.wildmock.test;
+package com.github.mvollebregt.wildmock.test.robustness;
 
 import com.github.mvollebregt.wildmock.exceptions.VerificationException;
 import com.github.mvollebregt.wildmock.test.helpers.ClassToBeMocked;
@@ -19,8 +19,8 @@ public class ConditionalsTest {
         mock.identityFunction(2);
         // then: this should fail:
         expectThrows(VerificationException.class, () -> verify((wildcard) -> {
-            int dummyValue = mock.identityFunction(wildcard);
-            if (dummyValue == 2) {
+            mock.identityFunction(wildcard);
+            if (wildcard == 2) {
                 mock.action();
             }
         }, Integer.class));
@@ -33,8 +33,8 @@ public class ConditionalsTest {
         mock.consume(3);
         // then: this should succeed
         verify((a, b) -> {
-            int dummyValue = mock.identityFunction(a);
-            if (dummyValue == 2) {
+            mock.identityFunction(a);
+            if (a == 2) {
                 mock.consume(b);
             }
         }, Integer.class, Integer.class);

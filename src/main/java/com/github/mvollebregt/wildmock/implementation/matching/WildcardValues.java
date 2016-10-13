@@ -2,7 +2,7 @@ package com.github.mvollebregt.wildmock.implementation.matching;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,13 +14,12 @@ class WildcardValues {
         this(new HashMap<>());
     }
 
-    WildcardValues(Object... values) {
-        this(IntStream.range(0, values.length).boxed().filter(index -> values[index] != null).
-                collect(Collectors.toMap(Function.identity(), index -> values[index])));
-    }
-
     WildcardValues(Map<Integer, Object> values) {
         this.values = values;
+    }
+
+    Optional<Object> get(int i) {
+        return Optional.ofNullable(values.get(i));
     }
 
     WildcardValues plus(WildcardValues other) {
