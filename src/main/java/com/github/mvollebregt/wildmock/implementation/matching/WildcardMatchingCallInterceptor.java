@@ -1,6 +1,5 @@
 package com.github.mvollebregt.wildmock.implementation.matching;
 
-import com.github.mvollebregt.wildmock.exceptions.UnusedWildcardException;
 import com.github.mvollebregt.wildmock.implementation.base.CallInterceptor;
 import com.github.mvollebregt.wildmock.implementation.base.IncrementingValueProvider;
 import com.github.mvollebregt.wildmock.implementation.base.MethodCall;
@@ -45,13 +44,6 @@ class WildcardMatchingCallInterceptor implements CallInterceptor {
 
     WildcardMarkers getWildcardMarkers() {
         return wildcardMarkers;
-    }
-
-    void verifyAllWildcardsMatched() {
-        if (!wildcardIndices.isEmpty()) {
-            List<Integer> unusedWildcardIndices = wildcardIndices.values().stream().sorted().collect(Collectors.toList());
-            throw new UnusedWildcardException(unusedWildcardIndices);
-        }
     }
 
     private void matchMethodArgumentsWithWildcards(Object[] arguments) {

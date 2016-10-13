@@ -41,7 +41,6 @@ public class CallMatcher {
         this.callRecorder = callRecorder;
         WildcardMatchingCallInterceptor wildcardMatcher = new WildcardMatchingCallInterceptor(wildcardTypes);
         callRecorder.record(action, wildcardMatcher.getWildcards(), wildcardMatcher);
-        wildcardMatcher.verifyAllWildcardsMatched();
         this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
         this.remainingCalls = wildcardMatcher.getRecordedCalls();
         this.wildcards = new WildcardValues(DefaultValueProvider.provideDefault(wildcardTypes));
@@ -59,6 +58,7 @@ public class CallMatcher {
         if (precedingMatcher.remainingCalls.get(0).getMethod().getReturnType().equals(Void.TYPE) && addedWildcards.isEmpty()) {
             remainingCalls = precedingMatcher.remainingCalls.stream().skip(1).collect(Collectors.toList());
         } else {
+            // TODO: trigger rerunning the simulation, we must also recalculate wildcard markers for remaining unmatched wildcards (an if statement might have changed those!)
             List<MethodCall> recordedCalls = callRecorder.record(action, wildcards.toObjectArray(), new SimulatingCallInterceptor(returnValues));
             this.remainingCalls = recordedCalls.stream().skip(returnValues.size()).collect(Collectors.toList());
         }
@@ -86,6 +86,7 @@ public class CallMatcher {
             WildcardValues extraWildcards = wildcardMarkers.matchArguments(methodCallIndex, methodCall.getArguments());
 
             if (remainingCalls.size() == 1) {
+                // TODO: if new method call has new information (return value or wildcards) then we must rerun the simulation (the number of remaining calls might have changed!)
                 Object[] arguments = this.wildcards.plus(extraWildcards).toObjectArray();
                 matches = singletonList(arguments).stream();
             } else {

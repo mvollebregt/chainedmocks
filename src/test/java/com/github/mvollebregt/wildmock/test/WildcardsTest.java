@@ -1,13 +1,11 @@
 package com.github.mvollebregt.wildmock.test;
 
-import com.github.mvollebregt.wildmock.exceptions.UnusedWildcardException;
 import com.github.mvollebregt.wildmock.test.helpers.ClassToBeMocked;
 import org.junit.jupiter.api.Test;
 
 import static com.github.mvollebregt.wildmock.Wildmock.mock;
 import static com.github.mvollebregt.wildmock.Wildmock.trigger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.expectThrows;
 
 @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 public class WildcardsTest {
@@ -59,13 +57,6 @@ public class WildcardsTest {
         mock.consume("argument");
         // then
         assertEquals("call sequence called with wildcard argument", status);
-    }
-
-    @Test
-    public void testWildcardNotFound() {
-        expectThrows(UnusedWildcardException.class, () ->
-                trigger(param -> mock.action(), Integer.class).then(wildcard -> {
-                }));
     }
 
     @Test
