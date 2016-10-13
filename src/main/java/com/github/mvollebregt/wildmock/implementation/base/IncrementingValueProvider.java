@@ -3,8 +3,6 @@ package com.github.mvollebregt.wildmock.implementation.base;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
-import java.util.stream.Stream;
-
 public class IncrementingValueProvider {
 
     private static final long INITIAL_SEED = 19760713;
@@ -42,9 +40,5 @@ public class IncrementingValueProvider {
         } else {
             return objenesis.newInstance(type);
         }
-    }
-
-    public Object[] provide(Class[] wildcardTypes) {
-        return Stream.of(wildcardTypes).map(this::provide).toArray();
     }
 }
