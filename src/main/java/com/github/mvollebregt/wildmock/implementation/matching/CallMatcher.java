@@ -1,6 +1,5 @@
 package com.github.mvollebregt.wildmock.implementation.matching;
 
-import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
 import com.github.mvollebregt.wildmock.implementation.base.MethodCall;
@@ -19,7 +18,7 @@ import static java.util.Collections.singletonList;
 
 public class CallMatcher {
 
-    private final ParameterisedAction action;
+    private final ParameterisedFunction action;
     private final ParameterisedFunction<Boolean> predicate;
     private final ParameterisedFunction behaviour;
     private final CallRecorder callRecorder;
@@ -33,7 +32,7 @@ public class CallMatcher {
     private final Set<MatchedValue> alreadyMatched = new HashSet<>();
     private final List<CallMatcher> followingMatchers = new ArrayList<>();
 
-    public CallMatcher(ParameterisedAction action, ParameterisedFunction<Boolean> predicate,
+    public CallMatcher(ParameterisedFunction action, ParameterisedFunction<Boolean> predicate,
                        ParameterisedFunction behaviour, Class[] wildcardTypes, CallRecorder callRecorder) {
         this.action = action;
         this.predicate = predicate;
@@ -69,6 +68,10 @@ public class CallMatcher {
 
     public Object applyBehaviour(Object[] arguments) {
         return behaviour.apply(arguments);
+    }
+
+    public boolean returnsValue() {
+        return behaviour.returnsValue();
     }
 
     public boolean satisfiesPredicate(Object[] arguments) {

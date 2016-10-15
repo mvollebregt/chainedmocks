@@ -1,13 +1,12 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.FunctionA;
-import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 public class WhenA<A, R> extends When<R> {
 
     public WhenA(FunctionA<A, R> expectedCalls, Class<A> a) {
-        super(ParameterisedAction.from(expectedCalls), a);
+        super(ParameterisedFunction.from(expectedCalls), a);
     }
 
     public WhenA<A, R> with(FunctionA<A, Boolean> predicate) {

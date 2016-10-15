@@ -2,13 +2,12 @@ package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.ActionABC;
 import com.github.mvollebregt.wildmock.function.FunctionABC;
-import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 public class TriggerABC<A, B, C> extends Trigger {
 
     public TriggerABC(ActionABC<A, B, C> expectedCalls, Class<A> a, Class<B> b, Class<C> c) {
-        super(ParameterisedAction.from(expectedCalls), a, b, c);
+        super(ParameterisedFunction.from(expectedCalls), a, b, c);
     }
 
     public TriggerABC<A, B, C> with(FunctionABC<A, B, C, Boolean> predicate) {

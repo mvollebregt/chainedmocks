@@ -2,7 +2,6 @@ package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.exceptions.VerificationException;
 import com.github.mvollebregt.wildmock.function.ActionX;
-import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 import java.util.List;
@@ -12,16 +11,16 @@ import static com.github.mvollebregt.wildmock.implementation.MockContext.getMock
 public class Verify {
 
     private final Class[] classes;
-    private final ParameterisedAction expectedCalls;
+    private final ParameterisedFunction expectedCalls;
     private List<Object[]> matches;
 
     public static Verify verify(ActionX expectedCalls) {
-        Verify verify = new Verify(ParameterisedAction.from(expectedCalls));
+        Verify verify = new Verify(ParameterisedFunction.from(expectedCalls));
         verify.check();
         return verify;
     }
 
-    Verify(ParameterisedAction expectedCalls, Class... classes) {
+    Verify(ParameterisedFunction expectedCalls, Class... classes) {
         this.classes = classes;
         this.expectedCalls = expectedCalls;
     }

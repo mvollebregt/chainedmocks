@@ -4,21 +4,25 @@ package com.github.mvollebregt.wildmock.function;
 @SuppressWarnings("unchecked")
 public interface ParameterisedFunction<R> {
 
-    R apply(Object[] arguments);
+    R apply(Object... arguments);
 
-    static ParameterisedFunction from(ActionX behaviour) {
-        return params -> {
+    default boolean returnsValue() {
+        return true;
+    }
+
+    static ParameterisedFunction<Void> from(ActionX behaviour) {
+        return (ParameterisedAction) params -> {
             behaviour.apply();
             return null;
         };
     }
 
-    static <R> ParameterisedFunction from(FunctionX<R> behaviour) {
+    static <R> ParameterisedFunction<R> from(FunctionX<R> behaviour) {
         return params -> behaviour.apply();
     }
 
-    static ParameterisedFunction from(ActionA behaviour) {
-        return params -> {
+    static ParameterisedFunction<Void> from(ActionA behaviour) {
+        return (ParameterisedAction) params -> {
             behaviour.apply(params[0]);
             return null;
         };
@@ -28,8 +32,8 @@ public interface ParameterisedFunction<R> {
         return params -> behaviour.apply((A) params[0]);
     }
 
-    static ParameterisedFunction from(ActionAB behaviour) {
-        return params -> {
+    static ParameterisedFunction<Void> from(ActionAB behaviour) {
+        return (ParameterisedAction) params -> {
             behaviour.apply(params[0], params[1]);
             return null;
         };
@@ -39,8 +43,8 @@ public interface ParameterisedFunction<R> {
         return params -> behaviour.apply((A) params[0], (B) params[1]);
     }
 
-    static ParameterisedFunction from(ActionABC behaviour) {
-        return params -> {
+    static ParameterisedFunction<Void> from(ActionABC behaviour) {
+        return (ParameterisedAction) params -> {
             behaviour.apply(params[0], params[1], params[2]);
             return null;
         };

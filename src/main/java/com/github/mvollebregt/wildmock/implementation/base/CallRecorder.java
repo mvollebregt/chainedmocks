@@ -1,6 +1,6 @@
 package com.github.mvollebregt.wildmock.implementation.base;
 
-import com.github.mvollebregt.wildmock.function.ParameterisedAction;
+import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class CallRecorder {
         return currentInterceptor;
     }
 
-    public List<MethodCall> record(ParameterisedAction action, Object[] wildcards, CallInterceptor interceptor) {
+    public List<MethodCall> record(ParameterisedFunction action, Object[] wildcards, CallInterceptor interceptor) {
         this.currentInterceptor = interceptor;
         action.apply(wildcards);
         this.currentInterceptor = defaultInterceptor;

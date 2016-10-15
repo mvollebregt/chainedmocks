@@ -1,6 +1,5 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
-import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 import static com.github.mvollebregt.wildmock.implementation.MockContext.getMockContext;
@@ -8,10 +7,10 @@ import static com.github.mvollebregt.wildmock.implementation.MockContext.getMock
 class Stub {
 
     private final Class[] classes;
-    private final ParameterisedAction expectedCalls;
+    private final ParameterisedFunction expectedCalls;
     private ParameterisedFunction<Boolean> predicate;
 
-    Stub(ParameterisedAction expectedCalls, Class... classes) {
+    Stub(ParameterisedFunction expectedCalls, Class... classes) {
         this.expectedCalls = expectedCalls;
         this.classes = classes;
     }

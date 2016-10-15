@@ -1,6 +1,5 @@
 package com.github.mvollebregt.wildmock.implementation;
 
-import com.github.mvollebregt.wildmock.function.ParameterisedAction;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 import com.github.mvollebregt.wildmock.implementation.base.CallInterceptor;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
@@ -19,12 +18,12 @@ public class MockContext {
         return mockContext;
     }
 
-    public void stub(ParameterisedAction action, ParameterisedFunction<Boolean> predicate,
+    public void stub(ParameterisedFunction action, ParameterisedFunction<Boolean> predicate,
                      ParameterisedFunction behaviour, Class... wildcardTypes) {
         actualCallInterceptor.addStub(action, predicate, behaviour, wildcardTypes, callRecorder);
     }
 
-    public List<Object[]> verify(ParameterisedAction action, Class... wildcardTypes) {
+    public List<Object[]> verify(ParameterisedFunction action, Class... wildcardTypes) {
         return new CallMatcher(action, null, null, wildcardTypes, callRecorder).matches(actualCallInterceptor.getRecordedCalls());
     }
 
