@@ -1,5 +1,6 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
+import com.github.mvollebregt.wildmock.function.Parameterisable;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 import static com.github.mvollebregt.wildmock.implementation.MockContext.getMockContext;
@@ -10,19 +11,19 @@ class Stub {
     private final ParameterisedFunction expectedCalls;
     private ParameterisedFunction<Boolean> predicate;
 
-    Stub(ParameterisedFunction expectedCalls, Class... classes) {
-        this.expectedCalls = expectedCalls;
+    Stub(Parameterisable expectedCalls, Class... classes) {
+        this.expectedCalls = expectedCalls.parameterised();
         this.classes = classes;
     }
 
-    Stub(Stub source, ParameterisedFunction<Boolean> predicate) {
+    Stub(Stub source, Parameterisable<Boolean> predicate) {
         this.expectedCalls = source.expectedCalls;
         this.classes = source.classes;
-        this.predicate = source.predicate == null ? predicate : arguments ->
-                source.predicate.apply(arguments) && predicate.apply(arguments);
+        this.predicate = source.predicate == null ? predicate.parameterised() : arguments ->
+                source.predicate.apply(arguments) && predicate.parameterised().apply(arguments);
     }
 
-    void then(ParameterisedFunction behaviour) {
-        getMockContext().stub(expectedCalls, predicate, behaviour, classes);
+    void then(Parameterisable behaviour) {
+        getMockContext().stub(expectedCalls, predicate, behaviour.parameterised(), classes);
     }
 }

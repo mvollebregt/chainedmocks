@@ -2,12 +2,11 @@ package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.ActionA;
 import com.github.mvollebregt.wildmock.function.FunctionA;
-import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 public class TriggerA<A> extends Trigger {
 
     public TriggerA(ActionA<A> expectedCalls, Class<A> a) {
-        super(ParameterisedFunction.from(expectedCalls), a);
+        super(expectedCalls, a);
     }
 
     public TriggerA<A> with(FunctionA<A, Boolean> predicate) {
@@ -15,10 +14,10 @@ public class TriggerA<A> extends Trigger {
     }
 
     public void then(ActionA<A> behaviour) {
-        then(ParameterisedFunction.from(behaviour));
+        super.then(behaviour);
     }
 
     private TriggerA(TriggerA<A> source, FunctionA<A, Boolean> predicate) {
-        super(source, ParameterisedFunction.from(predicate));
+        super(source, predicate);
     }
 }

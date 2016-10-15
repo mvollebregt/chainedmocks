@@ -1,23 +1,23 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.FunctionX;
-import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
+import com.github.mvollebregt.wildmock.function.Parameterisable;
 
 public class When<R> extends Stub {
 
     public When(FunctionX<R> expectedCalls) {
-        this(ParameterisedFunction.from(expectedCalls));
+        super(expectedCalls);
     }
 
     public void then(FunctionX<R> behaviour) {
-        then(ParameterisedFunction.from(behaviour));
+        super.then(behaviour);
     }
 
-    When(ParameterisedFunction expectedCalls, Class... classes) {
+    When(Parameterisable<R> expectedCalls, Class... classes) {
         super(expectedCalls, classes);
     }
 
-    When(When<R> source, ParameterisedFunction<Boolean> predicate) {
+    When(When<R> source, Parameterisable<Boolean> predicate) {
         super(source, predicate);
     }
 }

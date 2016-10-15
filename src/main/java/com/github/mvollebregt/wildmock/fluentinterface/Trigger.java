@@ -1,23 +1,23 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.ActionX;
-import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
+import com.github.mvollebregt.wildmock.function.Parameterisable;
 
 public class Trigger extends Stub {
 
     public Trigger(ActionX expectedCalls) {
-        this(ParameterisedFunction.from(expectedCalls));
+        super(expectedCalls);
     }
 
     public void then(ActionX behaviour) {
-        then(ParameterisedFunction.from(behaviour));
+        super.then(behaviour);
     }
 
-    Trigger(ParameterisedFunction expectedCalls, Class... classes) {
+    Trigger(Parameterisable expectedCalls, Class... classes) {
         super(expectedCalls, classes);
     }
 
-    Trigger(Trigger source, ParameterisedFunction<Boolean> predicate) {
+    Trigger(Trigger source, Parameterisable<Boolean> predicate) {
         super(source, predicate);
     }
 }
