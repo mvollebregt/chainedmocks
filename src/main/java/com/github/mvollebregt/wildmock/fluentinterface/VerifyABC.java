@@ -2,7 +2,7 @@ package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.ActionABC;
 import com.github.mvollebregt.wildmock.function.FunctionABC;
-import com.github.mvollebregt.wildmock.function.Parameterisable;
+import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 public class VerifyABC<A, B, C> extends Verify {
 
@@ -17,7 +17,7 @@ public class VerifyABC<A, B, C> extends Verify {
         super.with(predicate);
     }
 
-    private VerifyABC(Parameterisable from,
+    private VerifyABC(ParameterisedFunction from,
                       Class<A> a, Class<B> b, Class<C> c) {
         super(from, a, b, c);
     }

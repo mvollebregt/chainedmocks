@@ -2,7 +2,7 @@ package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.ActionAB;
 import com.github.mvollebregt.wildmock.function.FunctionAB;
-import com.github.mvollebregt.wildmock.function.Parameterisable;
+import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 public class VerifyAB<A, B> extends Verify {
 
@@ -16,7 +16,7 @@ public class VerifyAB<A, B> extends Verify {
         super.with(predicate);
     }
 
-    private VerifyAB(Parameterisable from, Class<A> a, Class<B> b) {
+    private VerifyAB(ParameterisedFunction from, Class<A> a, Class<B> b) {
         super(from, a, b);
     }
 }

@@ -2,7 +2,6 @@ package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.exceptions.VerificationException;
 import com.github.mvollebregt.wildmock.function.ActionX;
-import com.github.mvollebregt.wildmock.function.Parameterisable;
 import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
 
 import java.util.List;
@@ -21,13 +20,13 @@ public class Verify {
         return verify;
     }
 
-    Verify(Parameterisable expectedCalls, Class... classes) {
+    Verify(ParameterisedFunction expectedCalls, Class... classes) {
         this.classes = classes;
-        this.expectedCalls = expectedCalls.parameterised();
+        this.expectedCalls = expectedCalls;
     }
 
-    void with(Parameterisable<Boolean> predicate) {
-        if (!matches.stream().filter(predicate.parameterised()::apply).findAny().isPresent()) {
+    void with(ParameterisedFunction<Boolean> predicate) {
+        if (!matches.stream().filter(predicate::apply).findAny().isPresent()) {
             throw new VerificationException();
         }
     }

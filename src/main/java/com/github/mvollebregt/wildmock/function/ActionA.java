@@ -1,15 +1,13 @@
 package com.github.mvollebregt.wildmock.function;
 
 @FunctionalInterface
-public interface ActionA<A> extends Parameterisable<Void> {
+public interface ActionA<A> extends ParameterisedAction {
 
     void apply(A a);
 
     @SuppressWarnings("unchecked")
-    default ParameterisedFunction<Void> parameterised() {
-        return (ParameterisedAction) params -> {
-            apply((A) params[0]);
-            return null;
-        };
+    default Void apply(Object... params) {
+        apply((A) params[0]);
+        return null;
     }
 }
