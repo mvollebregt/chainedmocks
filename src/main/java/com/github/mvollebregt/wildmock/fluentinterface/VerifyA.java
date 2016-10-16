@@ -2,7 +2,7 @@ package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.ActionA;
 import com.github.mvollebregt.wildmock.function.FunctionA;
-import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
+import com.github.mvollebregt.wildmock.function.VarargsCallable;
 
 public class VerifyA<A> extends Verify {
 
@@ -16,7 +16,7 @@ public class VerifyA<A> extends Verify {
         super.with(predicate);
     }
 
-    private VerifyA(ParameterisedFunction from, Class<A> a) {
+    private VerifyA(VarargsCallable from, Class<A> a) {
         super(from, a);
     }
 }

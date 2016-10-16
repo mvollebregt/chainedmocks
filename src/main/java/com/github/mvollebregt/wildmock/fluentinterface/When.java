@@ -1,7 +1,8 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.function.FunctionX;
-import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
+import com.github.mvollebregt.wildmock.function.VarargsCallable;
+import com.github.mvollebregt.wildmock.function.VarargsFunction;
 
 public class When<R> extends Stub {
 
@@ -13,11 +14,11 @@ public class When<R> extends Stub {
         super.then(behaviour);
     }
 
-    When(ParameterisedFunction<R> expectedCalls, Class... classes) {
+    When(VarargsCallable<R> expectedCalls, Class... classes) {
         super(expectedCalls, classes);
     }
 
-    When(When<R> source, ParameterisedFunction<Boolean> predicate) {
+    When(When<R> source, VarargsFunction<Boolean> predicate) {
         super(source, predicate);
     }
 }

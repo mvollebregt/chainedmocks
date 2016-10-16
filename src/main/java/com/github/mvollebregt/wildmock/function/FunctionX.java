@@ -1,7 +1,7 @@
 package com.github.mvollebregt.wildmock.function;
 
 @FunctionalInterface
-public interface FunctionX<R> extends ParameterisedFunction<R> {
+public interface FunctionX<R> extends VarargsFunction<R> {
 
     R apply();
 

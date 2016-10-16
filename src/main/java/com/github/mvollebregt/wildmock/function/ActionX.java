@@ -1,12 +1,11 @@
 package com.github.mvollebregt.wildmock.function;
 
 @FunctionalInterface
-public interface ActionX extends ParameterisedAction {
+public interface ActionX extends VarargsAction {
 
     void apply();
 
-    default Void apply(Object... params) {
+    default void execute(Object... params) {
         apply();
-        return null;
     }
 }

@@ -1,28 +1,29 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
-import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
+import com.github.mvollebregt.wildmock.function.VarargsCallable;
+import com.github.mvollebregt.wildmock.function.VarargsFunction;
 
 import static com.github.mvollebregt.wildmock.implementation.MockContext.getMockContext;
 
 class Stub {
 
     private final Class[] classes;
-    private final ParameterisedFunction expectedCalls;
-    private ParameterisedFunction<Boolean> predicate;
+    private final VarargsCallable expectedCalls;
+    private VarargsFunction<Boolean> predicate;
 
-    Stub(ParameterisedFunction expectedCalls, Class... classes) {
+    Stub(VarargsCallable expectedCalls, Class... classes) {
         this.expectedCalls = expectedCalls;
         this.classes = classes;
     }
 
-    Stub(Stub source, ParameterisedFunction<Boolean> predicate) {
+    Stub(Stub source, VarargsFunction<Boolean> predicate) {
         this.expectedCalls = source.expectedCalls;
         this.classes = source.classes;
         this.predicate = source.predicate == null ? predicate : arguments ->
                 source.predicate.apply(arguments) && predicate.apply(arguments);
     }
 
-    void then(ParameterisedFunction behaviour) {
+    void then(VarargsCallable behaviour) {
         getMockContext().stub(expectedCalls, predicate, behaviour, classes);
     }
 }

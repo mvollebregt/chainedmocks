@@ -1,7 +1,7 @@
 package com.github.mvollebregt.wildmock.implementation;
 
 import com.github.mvollebregt.wildmock.exceptions.AmbiguousExpectationsException;
-import com.github.mvollebregt.wildmock.function.ParameterisedFunction;
+import com.github.mvollebregt.wildmock.function.VarargsCallable;
 import com.github.mvollebregt.wildmock.implementation.base.CallInterceptor;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
 import com.github.mvollebregt.wildmock.implementation.base.IncrementingValueProvider;
@@ -37,8 +37,8 @@ class StubbingCallInterceptor implements CallInterceptor {
         return returnValue;
     }
 
-    void addStub(ParameterisedFunction action, ParameterisedFunction<Boolean> predicate,
-                 ParameterisedFunction behaviour, Class[] wildcardTypes, CallRecorder callRecorderSwitcher) {
+    void addStub(VarargsCallable action, VarargsCallable<Boolean> predicate,
+                 VarargsCallable behaviour, Class[] wildcardTypes, CallRecorder callRecorderSwitcher) {
         matchers.add(new CallMatcher(action, predicate, behaviour, wildcardTypes, callRecorderSwitcher));
     }
 
