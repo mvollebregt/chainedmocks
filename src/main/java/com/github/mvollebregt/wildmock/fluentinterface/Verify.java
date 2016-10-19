@@ -1,6 +1,7 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
 import com.github.mvollebregt.wildmock.exceptions.VerificationException;
+import com.github.mvollebregt.wildmock.exceptions.WithClauseNotSatisfiedException;
 import com.github.mvollebregt.wildmock.function.ActionX;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
 
@@ -27,7 +28,7 @@ public class Verify {
 
     void with(VarargsCallable<Boolean> predicate) {
         if (!matches.stream().filter(predicate::apply).findAny().isPresent()) {
-            throw new VerificationException();
+            throw new WithClauseNotSatisfiedException(matches);
         }
     }
 
