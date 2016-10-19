@@ -1,5 +1,6 @@
 package com.github.mvollebregt.wildmock.test.arbitrarywildcards;
 
+import com.github.mvollebregt.wildmock.test.helpers.ArbitraryWildcardsMockClass;
 import org.junit.jupiter.api.Test;
 
 import static com.github.mvollebregt.wildmock.Wildmock.*;

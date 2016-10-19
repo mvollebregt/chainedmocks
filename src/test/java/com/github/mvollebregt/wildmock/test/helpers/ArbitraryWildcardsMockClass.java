@@ -1,4 +1,4 @@
-package com.github.mvollebregt.wildmock.test.arbitrarywildcards;
+package com.github.mvollebregt.wildmock.test.helpers;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
