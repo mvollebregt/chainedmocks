@@ -1,5 +1,6 @@
 package com.github.mvollebregt.wildmock.implementation.base;
 
+import com.github.mvollebregt.wildmock.api.MethodCall;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
 
 import java.util.List;

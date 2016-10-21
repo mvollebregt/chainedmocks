@@ -1,6 +1,5 @@
 package com.github.mvollebregt.wildmock.fluentinterface;
 
-import com.github.mvollebregt.wildmock.exceptions.VerificationException;
 import com.github.mvollebregt.wildmock.exceptions.WithClauseNotSatisfiedException;
 import com.github.mvollebregt.wildmock.function.ActionX;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
@@ -34,8 +33,5 @@ public class Verify {
 
     void check() {
         matches = getMockContext().verify(expectedCalls, classes);
-        if (matches.isEmpty()) {
-            throw new VerificationException();
-        }
     }
 }

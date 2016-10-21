@@ -1,20 +1,20 @@
 package com.github.mvollebregt.wildmock.implementation.matching;
 
+import com.github.mvollebregt.wildmock.api.MethodCall;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
-import com.github.mvollebregt.wildmock.implementation.base.MethodCall;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 public class CallMatcher {
 
@@ -26,8 +26,8 @@ public class CallMatcher {
 
     private final Class[] wildcardTypes;
     private final WildcardValues wildcards;
-    private final List<Object> returnValues;
 
+    private final List<MethodCall> observedCalls;
     private final List<MethodCall> remainingCalls;
     private final Set<MatchedValue> alreadyMatched = new HashSet<>();
     private final List<CallMatcher> followingMatchers = new ArrayList<>();
@@ -44,25 +44,26 @@ public class CallMatcher {
         callRecorder.record(action, wildcardMatcher.getWildcards(), wildcardMatcher);
         this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
         this.remainingCalls = wildcardMatcher.getRecordedCalls();
-        this.returnValues = emptyList();
+        this.observedCalls = emptyList();
     }
 
-    private CallMatcher(CallMatcher precedingMatcher, Object returnValue, WildcardValues addedWildcards) {
+    private CallMatcher(CallMatcher precedingMatcher, MethodCall methodCall, WildcardValues addedWildcards) {
         this.action = precedingMatcher.action;
         this.predicate = precedingMatcher.predicate;
         this.behaviour = precedingMatcher.behaviour;
         this.callRecorder = precedingMatcher.callRecorder;
         this.wildcardTypes = precedingMatcher.wildcardTypes;
         this.wildcards = precedingMatcher.wildcards.plus(addedWildcards);
-        this.returnValues = Stream.concat(precedingMatcher.returnValues.stream(), Stream.of(returnValue)).collect(Collectors.toList());
+        this.observedCalls = Stream.concat(precedingMatcher.observedCalls.stream(), Stream.of(methodCall)).collect(toList());
         if (precedingMatcher.remainingCalls.get(0).getMethod().getReturnType().equals(Void.TYPE) && addedWildcards.isEmpty()) {
-            remainingCalls = precedingMatcher.remainingCalls.stream().skip(1).collect(Collectors.toList());
+            remainingCalls = precedingMatcher.remainingCalls.stream().skip(1).collect(toList());
             wildcardMarkers = precedingMatcher.wildcardMarkers;
         } else {
-            SimulatingCallInterceptor wildcardMatcher = new SimulatingCallInterceptor(wildcardTypes, wildcards, returnValues);
+            SimulatingCallInterceptor wildcardMatcher = new SimulatingCallInterceptor(wildcardTypes, wildcards,
+                    observedCalls.stream().map(MethodCall::getReturnValue).collect(toList()));
             List<MethodCall> recordedCalls = callRecorder.record(action, wildcardMatcher.getWildcards(), wildcardMatcher);
             this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
-            this.remainingCalls = recordedCalls.stream().skip(returnValues.size()).collect(Collectors.toList());
+            this.remainingCalls = recordedCalls.stream().skip(observedCalls.size()).collect(toList());
         }
     }
 
@@ -79,7 +80,22 @@ public class CallMatcher {
     }
 
     public List<Object[]> matches(List<MethodCall> actualCalls) {
-        return actualCalls.stream().flatMap(this::match).collect(Collectors.toList());
+        return actualCalls.stream().flatMap(this::match).collect(toList());
+    }
+
+    public List<MethodCall> closestMatch() {
+        return findClosestMatch().observedCalls;
+    }
+
+    public List<MethodCall> missingCalls() {
+        return findClosestMatch().remainingCalls;
+    }
+
+    private CallMatcher findClosestMatch() {
+        return followingMatchers.isEmpty() ? this :
+                followingMatchers.stream().map(CallMatcher::findClosestMatch).
+                        max((matcher1, matcher2) -> matcher2.alreadyMatched.size() - matcher1.alreadyMatched.size()).
+                        orElse(null);
     }
 
     public Stream<Object[]> match(MethodCall methodCall) {
@@ -88,10 +104,10 @@ public class CallMatcher {
                 flatMap(followingMatch -> followingMatch.match(methodCall));
 
         if (matchesNextExpectedCall(methodCall.getTarget(), methodCall.getMethod(), methodCall.getArguments())) {
-            int methodCallIndex = returnValues.size();
+            int methodCallIndex = observedCalls.size();
 
             WildcardValues extraWildcards = wildcardMarkers.matchArguments(methodCallIndex, methodCall.getArguments());
-            CallMatcher newMatcher = new CallMatcher(this, methodCall.getReturnValue(), extraWildcards);
+            CallMatcher newMatcher = new CallMatcher(this, methodCall, extraWildcards);
 
             if (newMatcher.remainingCalls.size() == 0) {
                 Object[] arguments = newMatcher.wildcards.toObjectArray();
@@ -106,7 +122,7 @@ public class CallMatcher {
     }
 
     private boolean matchesNextExpectedCall(Object target, Method method, Object[] arguments) {
-        int methodCallIndex = returnValues.size();
+        int methodCallIndex = observedCalls.size();
         Set<Integer> argumentIndicesForWildcards = wildcardMarkers.getArgumentIndicesForWildcards(methodCallIndex);
         MethodCall nextExpectedCall = remainingCalls.get(0);
         return target.equals(nextExpectedCall.getTarget()) &&

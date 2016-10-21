@@ -1,8 +1,8 @@
 package com.github.mvollebregt.wildmock.implementation.matching;
 
+import com.github.mvollebregt.wildmock.api.MethodCall;
 import com.github.mvollebregt.wildmock.implementation.base.CallInterceptor;
 import com.github.mvollebregt.wildmock.implementation.base.IncrementingValueProvider;
-import com.github.mvollebregt.wildmock.implementation.base.MethodCall;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

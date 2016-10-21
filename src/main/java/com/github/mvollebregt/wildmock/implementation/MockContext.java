@@ -1,5 +1,6 @@
 package com.github.mvollebregt.wildmock.implementation;
 
+import com.github.mvollebregt.wildmock.exceptions.VerifyClauseNotSatisfiedException;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
 import com.github.mvollebregt.wildmock.implementation.base.CallInterceptor;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
@@ -24,7 +25,12 @@ public class MockContext {
     }
 
     public List<Object[]> verify(VarargsCallable action, Class... wildcardTypes) {
-        return new CallMatcher(action, null, null, wildcardTypes, callRecorder).matches(actualCallInterceptor.getRecordedCalls());
+        CallMatcher callMatcher = new CallMatcher(action, null, null, wildcardTypes, callRecorder);
+        List<Object[]> arguments = callMatcher.matches(actualCallInterceptor.getRecordedCalls());
+        if (arguments.size() == 0) {
+            throw new VerifyClauseNotSatisfiedException(callMatcher.closestMatch(), callMatcher.missingCalls());
+        }
+        return callMatcher.matches(actualCallInterceptor.getRecordedCalls());
     }
 
     CallInterceptor getCurrentInterceptor() {

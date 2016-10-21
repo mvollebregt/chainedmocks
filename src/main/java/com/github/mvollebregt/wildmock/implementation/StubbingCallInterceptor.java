@@ -1,11 +1,11 @@
 package com.github.mvollebregt.wildmock.implementation;
 
+import com.github.mvollebregt.wildmock.api.MethodCall;
 import com.github.mvollebregt.wildmock.exceptions.AmbiguousExpectationsException;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
 import com.github.mvollebregt.wildmock.implementation.base.CallInterceptor;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
 import com.github.mvollebregt.wildmock.implementation.base.IncrementingValueProvider;
-import com.github.mvollebregt.wildmock.implementation.base.MethodCall;
 import com.github.mvollebregt.wildmock.implementation.matching.CallMatcher;
 
 import java.lang.reflect.Method;
