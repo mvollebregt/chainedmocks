@@ -27,8 +27,8 @@ public class VerifyClauseNotSatisfiedExceptionTest {
                     mock.actionA("first call");
                     mock.actionA("second call");
                 }));
-        assertEquals(singletonList(actionA("first call")), exception.getObservedMethodCalls());
-        assertEquals(singletonList(actionA("second call")), exception.getRemainingMethodCalls());
+        assertEquals(singletonList(actionA("first call")), exception.getClosestMatch().getObservedMethodCalls());
+        assertEquals(singletonList(actionA("second call")), exception.getClosestMatch().getRemainingMethodCalls());
     }
 
     private MethodCall actionA(String argument) throws Exception {

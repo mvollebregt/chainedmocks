@@ -1,6 +1,7 @@
 package com.github.mvollebregt.wildmock.implementation.matching;
 
 import com.github.mvollebregt.wildmock.api.MethodCall;
+import com.github.mvollebregt.wildmock.api.PartialMatch;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
 
@@ -83,18 +84,11 @@ public class CallMatcher {
         return actualCalls.stream().flatMap(this::match).collect(toList());
     }
 
-    public List<MethodCall> closestMatch() {
-        return findClosestMatch().observedCalls;
-    }
-
-    public List<MethodCall> missingCalls() {
-        return findClosestMatch().remainingCalls;
-    }
-
-    private CallMatcher findClosestMatch() {
-        return followingMatchers.isEmpty() ? this :
-                followingMatchers.stream().map(CallMatcher::findClosestMatch).
-                        max((matcher1, matcher2) -> matcher2.alreadyMatched.size() - matcher1.alreadyMatched.size()).
+    public PartialMatch closestMatch() {
+        return followingMatchers.isEmpty() ? new PartialMatch(observedCalls, remainingCalls) :
+                followingMatchers.stream().map(CallMatcher::closestMatch).
+                        max((matcher1, matcher2) -> matcher2.getObservedMethodCalls().size() -
+                                matcher1.getObservedMethodCalls().size()).
                         orElse(null);
     }
 

@@ -28,7 +28,7 @@ public class MockContext {
         CallMatcher callMatcher = new CallMatcher(action, null, null, wildcardTypes, callRecorder);
         List<Object[]> arguments = callMatcher.matches(actualCallInterceptor.getRecordedCalls());
         if (arguments.size() == 0) {
-            throw new VerifyClauseNotSatisfiedException(callMatcher.closestMatch(), callMatcher.missingCalls());
+            throw new VerifyClauseNotSatisfiedException(callMatcher.closestMatch());
         }
         return callMatcher.matches(actualCallInterceptor.getRecordedCalls());
     }

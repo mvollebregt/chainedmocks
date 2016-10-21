@@ -1,39 +1,32 @@
 package com.github.mvollebregt.wildmock.exceptions;
 
-import com.github.mvollebregt.wildmock.api.MethodCall;
-
-import java.util.List;
+import com.github.mvollebregt.wildmock.api.PartialMatch;
 
 public class VerifyClauseNotSatisfiedException extends VerificationException {
 
-    private final List<MethodCall> observedMethodCalls;
-    private final List<MethodCall> remainingMethodCalls;
+    private final PartialMatch closestMatch;
 
-    public VerifyClauseNotSatisfiedException(List<MethodCall> observedMethodCalls, List<MethodCall> remainingMethodCalls) {
-        super(formatMessage(observedMethodCalls, remainingMethodCalls));
-        this.observedMethodCalls = observedMethodCalls;
-        this.remainingMethodCalls = remainingMethodCalls;
+    public VerifyClauseNotSatisfiedException(PartialMatch closestMatch) {
+        super(formatMessage(closestMatch));
+        this.closestMatch = closestMatch;
     }
 
-    public List<MethodCall> getObservedMethodCalls() {
-        return observedMethodCalls;
+    public PartialMatch getClosestMatch() {
+        return closestMatch;
     }
 
-    public List<MethodCall> getRemainingMethodCalls() {
-        return remainingMethodCalls;
-    }
-
-    private static String formatMessage(List<MethodCall> observedMethodcalls, List<MethodCall> expectedMethodCalls) {
+    private static String formatMessage(PartialMatch closestMatch) {
         StringBuilder messageBuilder = new StringBuilder();
         messageBuilder.append("Verify clause was not satisfied.\n\n");
         messageBuilder.append("The expected call sequence in the verify clause was not observed.\n\n");
         messageBuilder.append("The observed calls were:\n");
-        for (int i = 0; i < observedMethodcalls.size(); i++) {
-            messageBuilder.append(String.format("%d. %s\n", 1 + i, observedMethodcalls.get(i)));
+        for (int i = 0; i < closestMatch.getObservedMethodCalls().size(); i++) {
+            messageBuilder.append(String.format("%d. %s\n", 1 + i, closestMatch.getObservedMethodCalls().get(i)));
         }
         messageBuilder.append("\nExpected calls:\n");
-        for (int i = 0; i < expectedMethodCalls.size(); i++) {
-            messageBuilder.append(String.format("%d. %s\n", observedMethodcalls.size() + 1 + i, expectedMethodCalls.get(i)));
+        for (int i = 0; i < closestMatch.getRemainingMethodCalls().size(); i++) {
+            messageBuilder.append(String.format("%d. %s\n", closestMatch.getObservedMethodCalls().size() + 1 + i,
+                    closestMatch.getRemainingMethodCalls().get(i)));
         }
         return messageBuilder.toString();
     }
