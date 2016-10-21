@@ -5,7 +5,6 @@ import com.github.mvollebregt.wildmock.api.PartialMatch;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +28,7 @@ public class CallMatcher {
     private final WildcardValues wildcards;
 
     private final List<MethodCall> observedCalls;
+    private MethodCall mismatch;
     private final List<MethodCall> remainingCalls;
     private final Set<MatchedValue> alreadyMatched = new HashSet<>();
     private final List<CallMatcher> followingMatchers = new ArrayList<>();
@@ -85,7 +85,7 @@ public class CallMatcher {
     }
 
     public PartialMatch closestMatch() {
-        return followingMatchers.isEmpty() ? new PartialMatch(observedCalls, remainingCalls) :
+        return followingMatchers.isEmpty() ? new PartialMatch(observedCalls, mismatch, remainingCalls) :
                 followingMatchers.stream().map(CallMatcher::closestMatch).
                         max((matcher1, matcher2) -> matcher2.getObservedMethodCalls().size() -
                                 matcher1.getObservedMethodCalls().size()).
@@ -94,36 +94,44 @@ public class CallMatcher {
 
     public Stream<Object[]> match(MethodCall methodCall) {
 
-        Stream<Object[]> matches = followingMatchers.stream().
-                flatMap(followingMatch -> followingMatch.match(methodCall));
+        List<Object[]> matches = followingMatchers.stream().
+                flatMap(followingMatch -> followingMatch.match(methodCall)).collect(toList());
 
-        if (matchesNextExpectedCall(methodCall.getTarget(), methodCall.getMethod(), methodCall.getArguments())) {
-            int methodCallIndex = observedCalls.size();
+        int methodCallIndex = observedCalls.size();
+        MethodCall nextExpectedCall = remainingCalls.get(0);
 
-            WildcardValues extraWildcards = wildcardMarkers.matchArguments(methodCallIndex, methodCall.getArguments());
-            CallMatcher newMatcher = new CallMatcher(this, methodCall, extraWildcards);
+        if (methodCall.getTarget().equals(nextExpectedCall.getTarget())) {
+            if (methodCall.getMethod().equals(nextExpectedCall.getMethod())) {
+                if (argumentsMatch(methodCall, nextExpectedCall)) {
 
-            if (newMatcher.remainingCalls.size() == 0) {
-                Object[] arguments = newMatcher.wildcards.toObjectArray();
-                matches = singletonList(arguments).stream();
-            } else {
-                if (alreadyMatched.add(new MatchedValue(methodCall.getReturnValue(), extraWildcards))) {
-                    followingMatchers.add(newMatcher);
+                    WildcardValues extraWildcards = wildcardMarkers.matchArguments(methodCallIndex, methodCall.getArguments());
+                    CallMatcher newMatcher = new CallMatcher(this, methodCall, extraWildcards);
+
+                    if (newMatcher.remainingCalls.size() == 0) {
+                        Object[] arguments = newMatcher.wildcards.toObjectArray();
+                        matches = singletonList(arguments);
+                    } else {
+                        if (alreadyMatched.add(new MatchedValue(methodCall.getReturnValue(), extraWildcards))) {
+                            followingMatchers.add(newMatcher);
+                        }
+                    }
+                } else {
+                    mismatch = methodCall;
                 }
             }
         }
-        return matches;
+
+        return matches.stream();
     }
 
-    private boolean matchesNextExpectedCall(Object target, Method method, Object[] arguments) {
+    private boolean argumentsMatch(MethodCall methodCall, MethodCall nextExpectedCall) {
         int methodCallIndex = observedCalls.size();
         Set<Integer> argumentIndicesForWildcards = wildcardMarkers.getArgumentIndicesForWildcards(methodCallIndex);
-        MethodCall nextExpectedCall = remainingCalls.get(0);
-        return target.equals(nextExpectedCall.getTarget()) &&
-                method.equals(nextExpectedCall.getMethod()) &&
-                IntStream.range(0, arguments.length).
+
+        return IntStream.range(0, methodCall.getArguments().length).
                         filter(argumentIndex -> !argumentIndicesForWildcards.contains(argumentIndex)).
                         allMatch(argumentIndex ->
-                                arguments[argumentIndex].equals(nextExpectedCall.getArguments()[argumentIndex]));
+                                methodCall.getArguments()[argumentIndex].equals(
+                                        nextExpectedCall.getArguments()[argumentIndex]));
     }
 }

@@ -23,7 +23,14 @@ public class VerifyClauseNotSatisfiedException extends VerificationException {
         for (int i = 0; i < closestMatch.getObservedMethodCalls().size(); i++) {
             messageBuilder.append(String.format("%d. %s\n", 1 + i, closestMatch.getObservedMethodCalls().get(i)));
         }
+        if (closestMatch.getMismatchedMethodCall() != null) {
+            messageBuilder.append(String.format("--- %d. %s\n", closestMatch.getObservedMethodCalls().size() + 1,
+                    closestMatch.getMismatchedMethodCall()));
+        }
         messageBuilder.append("\nExpected calls:\n");
+        if (closestMatch.getMismatchedMethodCall() != null) {
+            messageBuilder.append("--- ");
+        }
         for (int i = 0; i < closestMatch.getRemainingMethodCalls().size(); i++) {
             messageBuilder.append(String.format("%d. %s\n", closestMatch.getObservedMethodCalls().size() + 1 + i,
                     closestMatch.getRemainingMethodCalls().get(i)));

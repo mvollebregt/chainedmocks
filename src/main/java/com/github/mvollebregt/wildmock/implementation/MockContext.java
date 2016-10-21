@@ -30,7 +30,7 @@ public class MockContext {
         if (arguments.size() == 0) {
             throw new VerifyClauseNotSatisfiedException(callMatcher.closestMatch());
         }
-        return callMatcher.matches(actualCallInterceptor.getRecordedCalls());
+        return arguments;
     }
 
     CallInterceptor getCurrentInterceptor() {
