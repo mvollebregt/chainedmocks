@@ -43,8 +43,47 @@ public class VerifyClauseNotSatisfiedExceptionTest {
         assertEquals(singletonList(actionA("expected argument")), exception.getClosestMatch().getRemainingMethodCalls());
     }
 
+    @Test
+    public void testWrongMethod() throws Exception {
+        // when
+        mock.actionAB(null, null);
+        VerifyClauseNotSatisfiedException exception = expectThrows(VerifyClauseNotSatisfiedException.class, () ->
+                verify(() -> mock.actionA("expected argument")));
+        System.out.println(exception.getMessage());
+        assertEquals(actionAB(null, null), exception.getClosestMatch().getMismatchedMethodCall());
+    }
+
+    @Test
+    public void testWrongArgumentTwice() throws Exception {
+        // when: action is called with wrong argument twice
+        mock.actionA("unexpected 1");
+        mock.actionA("unexpected 2");
+        VerifyClauseNotSatisfiedException exception = expectThrows(VerifyClauseNotSatisfiedException.class, () ->
+                verify(() -> mock.actionA("expected argument")));
+        // then: the first argument is registered as closest match
+        assertEquals(actionA("unexpected 1"), exception.getClosestMatch().getMismatchedMethodCall());
+    }
+
+
+    @Test
+    public void testWrongMethodThenWrongArgument() throws Exception {
+        // when: action is called with wrong method and then with wrong argument
+        mock.actionAB(null, null);
+        mock.actionA("unexpected argument");
+        VerifyClauseNotSatisfiedException exception = expectThrows(VerifyClauseNotSatisfiedException.class, () ->
+                verify(() -> mock.actionA("expected argument")));
+        // then: the closest call is registered as closest match
+        assertEquals(actionA("unexpected argument"), exception.getClosestMatch().getMismatchedMethodCall());
+
+    }
+
     private MethodCall actionA(String argument) throws Exception {
         Method actionA = ArbitraryWildcardsMockClass.class.getMethod("actionA", Object.class);
         return new MethodCall(mock, actionA, new Object[]{argument}, null);
+    }
+
+    private MethodCall actionAB(String arg1, String arg2) throws Exception {
+        Method actionAB = ArbitraryWildcardsMockClass.class.getMethod("actionAB", Object.class, Object.class);
+        return new MethodCall(mock, actionAB, new Object[]{arg1, arg2}, null);
     }
 }
