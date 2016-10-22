@@ -1,15 +1,13 @@
 package com.github.mvollebregt.wildmock.implementation.matching;
 
+import com.github.mvollebregt.wildmock.api.MatchLevel;
 import com.github.mvollebregt.wildmock.api.MethodCall;
 import com.github.mvollebregt.wildmock.api.PartialMatch;
 import com.github.mvollebregt.wildmock.function.VarargsCallable;
 import com.github.mvollebregt.wildmock.implementation.base.CallRecorder;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.IntStream;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
@@ -22,7 +20,6 @@ public class CallMatcher {
     private final VarargsCallable<Boolean> predicate;
     private final VarargsCallable behaviour;
     private final CallRecorder callRecorder;
-    private final WildcardMarkers wildcardMarkers;
 
     private final Class[] wildcardTypes;
     private final WildcardValues wildcards;
@@ -43,7 +40,6 @@ public class CallMatcher {
         this.wildcards = new WildcardValues();
         SimulatingCallInterceptor wildcardMatcher = new SimulatingCallInterceptor(wildcardTypes, wildcards, emptyList());
         callRecorder.record(action, wildcardMatcher.getWildcards(), wildcardMatcher);
-        this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
         this.remainingCalls = wildcardMatcher.getRecordedCalls();
         this.observedCalls = emptyList();
     }
@@ -58,12 +54,10 @@ public class CallMatcher {
         this.observedCalls = Stream.concat(precedingMatcher.observedCalls.stream(), Stream.of(methodCall)).collect(toList());
         if (precedingMatcher.remainingCalls.get(0).getMethod().getReturnType().equals(Void.TYPE) && addedWildcards.isEmpty()) {
             remainingCalls = precedingMatcher.remainingCalls.stream().skip(1).collect(toList());
-            wildcardMarkers = precedingMatcher.wildcardMarkers;
         } else {
             SimulatingCallInterceptor wildcardMatcher = new SimulatingCallInterceptor(wildcardTypes, wildcards,
                     observedCalls.stream().map(MethodCall::getReturnValue).collect(toList()));
             List<MethodCall> recordedCalls = callRecorder.record(action, wildcardMatcher.getWildcards(), wildcardMatcher);
-            this.wildcardMarkers = wildcardMatcher.getWildcardMarkers();
             this.remainingCalls = recordedCalls.stream().skip(observedCalls.size()).collect(toList());
         }
     }
@@ -97,41 +91,36 @@ public class CallMatcher {
         List<Object[]> matches = followingMatchers.stream().
                 flatMap(followingMatch -> followingMatch.match(methodCall)).collect(toList());
 
-        int methodCallIndex = observedCalls.size();
         MethodCall nextExpectedCall = remainingCalls.get(0);
+        MatchLevel matchLevel = methodCall.match(nextExpectedCall);
 
-        if (methodCall.getTarget().equals(nextExpectedCall.getTarget())) {
-            if (methodCall.getMethod().equals(nextExpectedCall.getMethod())) {
-                if (argumentsMatch(methodCall, nextExpectedCall)) {
+        if (MatchLevel.COMPLETE.equals(matchLevel)) {
 
-                    WildcardValues extraWildcards = wildcardMarkers.matchArguments(methodCallIndex, methodCall.getArguments());
-                    CallMatcher newMatcher = new CallMatcher(this, methodCall, extraWildcards);
+            WildcardValues extraWildcards = matchArguments(nextExpectedCall.getWildcardMarkers(), methodCall.getArguments());
+            CallMatcher newMatcher = new CallMatcher(this, methodCall, extraWildcards);
 
-                    if (newMatcher.remainingCalls.size() == 0) {
-                        Object[] arguments = newMatcher.wildcards.toObjectArray();
-                        matches = singletonList(arguments);
-                    } else {
-                        if (alreadyMatched.add(new MatchedValue(methodCall.getReturnValue(), extraWildcards))) {
-                            followingMatchers.add(newMatcher);
-                        }
-                    }
-                } else {
-                    mismatch = methodCall;
+            if (newMatcher.remainingCalls.size() == 0) {
+                Object[] arguments = newMatcher.wildcards.toObjectArray();
+                matches = singletonList(arguments);
+            } else {
+                if (alreadyMatched.add(new MatchedValue(methodCall.getReturnValue(), extraWildcards))) {
+                    followingMatchers.add(newMatcher);
                 }
             }
+        } else {
+            mismatch = methodCall;
         }
 
         return matches.stream();
     }
 
-    private boolean argumentsMatch(MethodCall methodCall, MethodCall nextExpectedCall) {
-        int methodCallIndex = observedCalls.size();
-        Set<Integer> argumentIndicesForWildcards = wildcardMarkers.getArgumentIndicesForWildcards(methodCallIndex);
-
-        return IntStream.range(0, methodCall.getArguments().length).
-                        filter(argumentIndex -> !argumentIndicesForWildcards.contains(argumentIndex)).
-                        allMatch(argumentIndex ->
-                                methodCall.getArguments()[argumentIndex].equals(
-                                        nextExpectedCall.getArguments()[argumentIndex]));
+    private WildcardValues matchArguments(Map<Integer, Integer> markers, Object[] arguments) {
+        if (markers != null) {
+            return new WildcardValues(
+                    markers.entrySet().stream().collect(Collectors.toMap(
+                            Map.Entry::getValue, marker -> arguments[marker.getKey()])));
+        } else {
+            return new WildcardValues();
+        }
     }
 }

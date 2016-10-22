@@ -2,8 +2,12 @@ package com.github.mvollebregt.wildmock.api;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static java.util.Collections.emptyMap;
 
 public class MethodCall {
 
@@ -11,12 +15,19 @@ public class MethodCall {
     private final Method method;
     private final Object[] arguments;
     private final Object returnValue;
+    private final Map<Integer, Integer> wildcardMarkers;
 
     public MethodCall(Object target, Method method, Object[] arguments, Object returnValue) {
+        this(target, method, arguments, returnValue, emptyMap());
+    }
+
+    public MethodCall(Object target, Method method, Object[] arguments, Object returnValue,
+                      Map<Integer, Integer> wildcardMarkers) {
         this.target = target;
         this.method = method;
         this.arguments = arguments;
         this.returnValue = returnValue;
+        this.wildcardMarkers = wildcardMarkers;
     }
 
     public Object getTarget() {
@@ -35,6 +46,32 @@ public class MethodCall {
         return returnValue;
     }
 
+    public Map<Integer, Integer> getWildcardMarkers() {
+        return wildcardMarkers;
+    }
+
+    public MatchLevel match(MethodCall other) {
+        if (!target.equals(other.target)) {
+            return MatchLevel.NONE;
+        } else if (!method.getName().equals(other.method.getName())) {
+            return MatchLevel.TARGET;
+        } else if (!method.equals(other.method)) {
+            return MatchLevel.METHOD_NAME;
+        } else if (!argumentsMatch(other)) {
+            return MatchLevel.METHOD;
+        } else {
+            return MatchLevel.COMPLETE;
+        }
+    }
+
+    private boolean argumentsMatch(MethodCall other) {
+        return IntStream.range(0, arguments.length).
+                filter(argumentIndex -> !other.wildcardMarkers.keySet().contains(argumentIndex)).
+                allMatch(argumentIndex ->
+                        arguments[argumentIndex].equals(
+                                other.arguments[argumentIndex]));
+    }
+
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
@@ -45,7 +82,6 @@ public class MethodCall {
 
         if (!target.equals(that.target)) return false;
         if (!method.equals(that.method)) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(arguments, that.arguments)) return false;
         return returnValue != null ? returnValue.equals(that.returnValue) : that.returnValue == null;
 

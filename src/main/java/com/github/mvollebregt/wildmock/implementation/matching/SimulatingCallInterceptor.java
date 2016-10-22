@@ -5,12 +5,16 @@ import com.github.mvollebregt.wildmock.implementation.base.CallInterceptor;
 import com.github.mvollebregt.wildmock.implementation.base.IncrementingValueProvider;
 
 import java.lang.reflect.Method;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.IntStream;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 class SimulatingCallInterceptor implements CallInterceptor {
 
@@ -19,7 +23,6 @@ class SimulatingCallInterceptor implements CallInterceptor {
     private final IncrementingValueProvider valueProvider = new IncrementingValueProvider();
     private final Object[] wildcards;
     private final Map<Object, Integer> wildcardIndices;
-    private final WildcardMarkers wildcardMarkers = new WildcardMarkers();
     private final List<MethodCall> recordedCalls = new ArrayList<>();
 
     SimulatingCallInterceptor(Class[] wildcardTypes, WildcardValues wildcardValues, List<Object> returnValues) {
@@ -27,7 +30,7 @@ class SimulatingCallInterceptor implements CallInterceptor {
         wildcards = IntStream.range(0, wildcardTypes.length).boxed().map(i -> wildcardValues.get(i).orElse(
                 valueProvider.provide(wildcardTypes[i]))).toArray();
         wildcardIndices = IntStream.range(0, wildcardTypes.length).boxed().collect(
-                Collectors.toMap(i -> wildcards[i], Function.identity()));
+                toMap(i -> wildcards[i], identity()));
     }
 
     Object[] getWildcards() {
@@ -40,24 +43,10 @@ class SimulatingCallInterceptor implements CallInterceptor {
     }
 
     public Object intercept(Object target, Method method, Object[] arguments) {
-        matchMethodArgumentsWithWildcards(arguments);
         Object returnValue = getReturnValue(method.getReturnType());
-        recordedCalls.add(new MethodCall(target, method, arguments, returnValue));
+        Map<Integer, Integer> wildcardMarkers = matchMethodArgumentsWithWildcards(arguments);
+        recordedCalls.add(new MethodCall(target, method, arguments, returnValue, wildcardMarkers));
         return returnValue;
-    }
-
-    WildcardMarkers getWildcardMarkers() {
-        return wildcardMarkers;
-    }
-
-    private void matchMethodArgumentsWithWildcards(Object[] arguments) {
-        for (int argumentIndex = 0; argumentIndex < arguments.length; argumentIndex++) {
-            Object argument = arguments[argumentIndex];
-            Integer wildcardIndex = wildcardIndices.remove(argument);
-            if (wildcardIndex != null) {
-                wildcardMarkers.put(recordedCalls.size(), argumentIndex, wildcardIndex);
-            }
-        }
     }
 
     private Object getReturnValue(Class<?> returnType) {
@@ -66,4 +55,10 @@ class SimulatingCallInterceptor implements CallInterceptor {
                 returnValues.get(returnValueCount) : valueProvider.provide(returnType);
     }
 
+    private Map<Integer, Integer> matchMethodArgumentsWithWildcards(Object[] arguments) {
+        return IntStream.range(0, arguments.length).boxed().map(argumentIndex -> {
+            Integer wildcardIndex = wildcardIndices.remove(arguments[argumentIndex]);
+            return wildcardIndex == null ? null : new SimpleEntry<>(argumentIndex, wildcardIndex);
+        }).filter(Objects::nonNull).collect(toMap(Entry::getKey, Entry::getValue));
+    }
 }
