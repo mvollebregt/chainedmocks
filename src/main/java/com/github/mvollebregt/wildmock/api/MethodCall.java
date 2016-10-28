@@ -3,11 +3,11 @@ package com.github.mvollebregt.wildmock.api;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.joining;
 
 public class MethodCall {
 
@@ -98,7 +98,24 @@ public class MethodCall {
 
     @Override
     public String toString() {
+        return toString(emptyMap());
+    }
+
+    String toString(Map<Object, String> argumentReplacements) {
         return String.format("%s.%s(%s)", target, method.getName(),
-                Stream.of(arguments).map(String::valueOf).collect(Collectors.joining(", ")));
+                IntStream.range(0, arguments.length).boxed().map(index ->
+                        argumentToString(index, argumentReplacements)).collect(joining(", ")));
+    }
+
+    private String argumentToString(int argumentIndex, Map<Object, String> argumentReplacements) {
+        Object argument = arguments[argumentIndex];
+        if (wildcardMarkers.containsKey(argumentIndex)) {
+            String typeName = argument.getClass().getSimpleName();
+            String article = "aeiouAEIOU".contains(typeName.substring(0, 1)) ? "an" : "a";
+            return String.format("%s %s", article, typeName);
+        } else {
+            String outputWildcard = argumentReplacements.get(argument);
+            return Optional.ofNullable(outputWildcard).orElse(String.valueOf(argument));
+        }
     }
 }

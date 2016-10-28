@@ -1,7 +1,7 @@
 package com.github.mvollebregt.wildmock.test.robustness;
 
 import com.github.mvollebregt.wildmock.test.helpers.ClassToBeMocked;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.mvollebregt.wildmock.Wildmock.*;
 

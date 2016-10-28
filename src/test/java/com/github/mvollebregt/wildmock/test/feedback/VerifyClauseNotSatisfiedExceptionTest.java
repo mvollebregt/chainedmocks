@@ -74,7 +74,6 @@ public class VerifyClauseNotSatisfiedExceptionTest {
                 verify(() -> mock.actionA("expected argument")));
         // then: the closest call is registered as closest match
         assertEquals(actionA("unexpected argument"), exception.getClosestMatch().getMismatchedMethodCall());
-
     }
 
     private MethodCall actionA(String argument) throws Exception {
