@@ -25,7 +25,7 @@ public class CallMatcher {
     private final WildcardValues wildcards;
 
     private final List<MethodCall> observedCalls;
-    private MatchLevel mismatchLevel = MatchLevel.NONE;
+    private MatchLevel matchLevel = MatchLevel.NONE;
     private MethodCall mismatch;
     private final List<MethodCall> remainingCalls;
     private final Set<MatchedValue> alreadyMatched = new HashSet<>();
@@ -107,13 +107,14 @@ public class CallMatcher {
                 if (alreadyMatched.add(new MatchedValue(methodCall.getReturnValue(), extraWildcards))) {
                     followingMatchers.add(newMatcher);
                 }
+                mismatch = null;
             }
         } else {
-            if (matchLevel.ordinal() > mismatchLevel.ordinal()) {
+            if (matchLevel.ordinal() > this.matchLevel.ordinal()) {
                 mismatch = methodCall;
-                mismatchLevel = matchLevel;
             }
         }
+        this.matchLevel = matchLevel;
 
         return matches.stream();
     }
