@@ -41,3 +41,4 @@ Expected calls:
 ```
 
 I'm currently working on a step by step tutorial on how to use wildmock in your own projects.
+Want to know more? Go to the [Basics](https://github.com/mvollebregt/wildmock/wiki/Basics).
